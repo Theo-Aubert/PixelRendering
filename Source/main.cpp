@@ -1,8 +1,8 @@
 #define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
-#include "Shadow.h"
-#include "SandSimulation.h"
-#include "Universe.h"
+#include "Externals/olcPixelGameEngine.h"
+#include "Public/Shadow.h"
+#include "Public/SandSimulation.h"
+#include "Public/Universe.h"
 #include <cmath>
 
 // Override base class with your custom functionality

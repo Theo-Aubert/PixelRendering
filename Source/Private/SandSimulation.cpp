@@ -1,4 +1,4 @@
-#include "SandSimulation.h"
+#include "../Public/SandSimulation.h"
 
 bool SandSimulation::OnUserCreate()
 {

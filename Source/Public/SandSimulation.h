@@ -1,6 +1,6 @@
 #pragma once
 
-#include "olcPixelGameEngine.h"
+#include "../Externals/olcPixelGameEngine.h"
 
 enum ParticleType : uint32_t
 {
