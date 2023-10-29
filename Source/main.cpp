@@ -653,7 +653,11 @@ int main()
 	srand(time(NULL));
 
 	Universe demo;
-	if (demo.Construct(1920, 1080, 1, 1, true))
+	if (demo.Construct(1080, 520, 1, 1, false))
+	{
 		demo.Start();
+		demo.olc_UpdateMouseFocus(true);
+		demo.olc_UpdateKeyFocus(true);
+	}
 	return 0;
 }

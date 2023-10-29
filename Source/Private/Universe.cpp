@@ -26,6 +26,12 @@ bool Universe::OnUserUpdate(float fElapsedTime)
   
 }
 
+void Universe::GoBackToMainMenu()
+{
+    currentLevel = LevelID::Menu;
+    bHasMenuBeenDrawn = false;
+}
+
 bool Universe::UpdateMenu(float fElapsedTime)
 {
     //Commands
@@ -41,11 +47,21 @@ bool Universe::UpdateMenu(float fElapsedTime)
         return false;
 
     //Display
-    Clear(olc::BLACK);
-    DrawString(olc::vi2d(50, 50),  std::string("Ocean of Stars"),               olc::YELLOW,15U);
-    DrawString(olc::vi2d(50, 150), std::string("A simulation by TAU"),          olc::RED,   5U);
-    DrawString(olc::vi2d(50, 200), std::string("Press [ENTER] to continue"),    olc::WHITE, 10U);
+    if (!bHasMenuBeenDrawn)
+    {
 
+        Clear(olc::BLACK);
+
+        std::string strMainTittle   = "Ocean of Stars";
+        std::string strAuthor       = "A simulation by TAU";
+        std::string strContinue     = "Press [ENTER] to continue";
+
+        DrawNormalizedString(strMainTittle, MAIN_TITTLE_WIDTH, MAIN_TITTLE_SPACING_LEFT, MAIN_TITTLE_SPACING_TOP, true, olc::YELLOW);
+        DrawNormalizedString(strAuthor,AUTHOR_WIDTH, AUTHOR_SPACING_LEFT, AUTHOR_SPACING_TOP, true, olc::RED);
+        DrawNormalizedString(strContinue, CONTINUE_WIDTH, CONTINUE_SPACING_LEFT, CONTINUE_SPACING_TOP, true);
+
+        bHasMenuBeenDrawn = true;
+    }
 
     return true;
 }
@@ -56,13 +72,13 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
     //Return to menu
     if (GetKey(olc::ESCAPE).bReleased)
     {
-        currentLevel = LevelID::Menu;
+        GoBackToMainMenu();
         return true;
     }
 
     if (GetKey(olc::R).bReleased)
     {
-        srand(time(NULL));
+        srand((unsigned int)time(NULL));
         seed = rand();
     }
     if (GetKey(olc::Z).bHeld) universeOffset.y -= 50.0f * fElapsedTime;
@@ -112,48 +128,139 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
         {
             bStarSelected = true;
             selectedStar = universeMouse;
+
+            
         }
         else
         {
             bStarSelected = false;
         }
+
+        //bHasSolarSystemPanelBeenDraw = false;
     }
 
-    if (bStarSelected)
+    if (bStarSelected /* && !bHasSolarSystemPanelBeenDraw*/)
     {
-        StarSystem star(selectedStar.x, selectedStar.y, true);
+        const StarSystem star(selectedStar.x, selectedStar.y, true);
 
-        //Draw Windom
-        FillRect(8, 240, 496, 232, olc::DARK_BLUE);
-        DrawRect(8, 240, 496, 232, olc::WHITE);
-
-        olc::vi2d vBody = { 14, 356 };
-        vBody.x += star.starDiameter * 1.375;
-        FillCircle(vBody, (int)(star.starDiameter * 1.375), star.starColor);
-        vBody.x += (star.starDiameter * 1.375) + halfSectorSize;
-
-        //Draw Planets
-        for (sPlanet& planet : star.planets)
+        switch (currentStarVisu)
         {
-            if (vBody.x + planet.diameter >= 496) break;
-
-            vBody.x += planet.diameter;
-            FillCircle(vBody, (int)(planet.diameter * 1.0), olc::PixelF(planet.minerals, planet.foliage, planet.water));
-
-            olc::vi2d vMoon = vBody;
-            for (sMoon& moon : planet.Moons)
-            {
-                vMoon.y += planet.diameter + moon.distance;
-                FillCircle(vMoon, (int)(moon.diameter * 1.0), olc::GREY);
-                vMoon.y += 10;
-            }
-            vBody.x += planet.diameter + 8;
-
+        case GalaxyStarVisualization::Accurate:
+            DrawAccurateStarSystemVisualization(star);
+            break;
+        case GalaxyStarVisualization::Simplified:
+            DrawSimplifiedStarSystemVisualization(star);
+            break;
+        default:
+            break;
         }
 
+    }
+
+    return true;
+}
+
+void Universe::DrawAccurateStarSystemVisualization(const StarSystem& star)
+{
+    //Draw Window
+
+    olc::vi2d rectSize = olc::vi2d(SOLAR_SYSTEM_BOX_WIDTH * ScreenWidth(), SOLAR_SYSTEM_BOX_HEIGHT * ScreenHeight());
+    olc::vi2d rectPos = olc::vi2d(SOLAR_SYSTEM_SPACING_LEFT * ScreenWidth(), SOLAR_SYSTEM_SPACING_TOP * ScreenHeight());
+
+    FillRect(rectPos, rectSize, olc::DARK_BLUE);
+    DrawRect(rectPos, rectSize, olc::WHITE);
+
+
+    //Get the biggest body in our system (should be the star, but we never know :) )
+    double widestBodyDiameter = star.starDiameter;
+    for (const sPlanet& planet : star.planets)
+    {
+        widestBodyDiameter = std::max(widestBodyDiameter, planet.diameter);
+    }
+
+    //Normalizing system size to fit in the box
+    olc::vd2d vSystemSize = star.ComputeSystemSize();
+    olc::vd2d vScalingVector = olc::vd2d((rectSize.x - 10.0 /*5 pixels margin left and right*/) / vSystemSize.x, (rectSize.y - 10.0 /*5 pixels margin up and down*/) / vSystemSize.y);
+    double dScalingVector = std::min((rectSize.x - 10.0 /*5 pixels margin left and right*/) / vSystemSize.x, (rectSize.y - 10.0 /*5 pixels margin up and down*/) / vSystemSize.y); //px.unit^-1
+    
+
+    //int32_t uTopSpacing = rectPos.y + 5 + (uint32_t)(widestBodyDiameter * vScalingVector.x);
+    int32_t uTopSpacing = rectPos.y + 5 + (uint32_t)(widestBodyDiameter * dScalingVector / 2.0);
+
+    //DrawRect(rectPos + olc::vi2d(10, 10), star.ComputeSystemSize(), olc::RED);
+
+    olc::vi2d vBody = { rectPos.x + 5, uTopSpacing };
+    // vBody.x += (int32_t)(star.starDiameter * vScalingVector.x);
+     //FillCircle(vBody, (int)(star.starDiameter * vScalingVector.x), star.starColor);
+
+    vBody.x += (int32_t)(star.starDiameter * dScalingVector / 2.0);
+    FillCircle(vBody, (int)(star.starDiameter * dScalingVector / 2.0), star.starColor);
+    vBody.x += (int32_t)(star.starDiameter * dScalingVector / 2.0);
+
+    //Draw Planets
+    for (const sPlanet& planet : star.planets)
+    {
+        if (vBody.x + planet.diameter * dScalingVector >= (rectPos.x + rectSize.x) - 5.0) break;
+
+        /*vBody.x += (int32_t)(planet.distance * vScalingVector.x);
+        vBody.x += (int32_t)(planet.diameter * vScalingVector.x);
+        FillCircle(vBody, (int)(planet.diameter * vScalingVector.x), olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));*/
+
+        vBody.x += (int32_t)(planet.distance * dScalingVector);
+        vBody.x += (int32_t)(planet.diameter * dScalingVector / 2.0);
+        FillCircle(vBody, (int)(planet.diameter * dScalingVector / 2.0), olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
+        
+
+        olc::vi2d vMoon = vBody;
+        for (const sMoon& moon : planet.Moons)
+        {
+            if (vMoon.y + (moon.diameter + planet.diameter/ 2.0 + moon.distance) * dScalingVector >= (rectPos.y + rectSize.y)) break;
+
+            vMoon.y += (int32_t)(planet.diameter * dScalingVector / 2.0);
+            vMoon.y += (int32_t)(moon.distance * dScalingVector);
+            vMoon.y += (int32_t)(moon.diameter * dScalingVector / 2.0);
+            FillCircle(vMoon, (int)std::min(1.0,(moon.diameter * dScalingVector / 2.0)), olc::GREY);
+            vMoon.y += (int32_t)(moon.diameter * dScalingVector / 2.0);
+        }
+
+        vBody.x += (int32_t)(planet.diameter * dScalingVector / 2.0);
 
     }
 
+    //bHasSolarSystemPanelBeenDraw = true;
+}
+
+void Universe::DrawSimplifiedStarSystemVisualization(const StarSystem& star)
+{
+}
+
+bool Universe::DrawNormalizedString(const std::string& string, float fWidth, float fLeftSpacing, float fTopSpacing, bool bAutoCenter, const olc::Pixel& color)
+{
+    olc::vi2d vStringSize = GetTextSize(string);
+
+    if (vStringSize.x <= 0)
+    {
+        return false;
+    }
+
+    uint32_t uStringScale = (uint32_t)((ScreenWidth() * fWidth) / (float)vStringSize.x);
+    olc::vi2d vStringPos = olc::vi2d((int32_t)(fLeftSpacing * ScreenWidth()), (int32_t)(fTopSpacing * ScreenHeight()));
+
+    /*std::cout << string << ": ";
+    std::cout << "Lft spacing = " << (int32_t)(fLeftSpacing * ScreenWidth()) << " | ";
+    std::cout << "String size = " << (int32_t)(ScreenWidth() * fWidth) << " | ";
+    std::cout << "Rght Spacing = " << ScreenWidth() - ((int32_t)(ScreenWidth() * fWidth) + (int32_t)(fLeftSpacing * ScreenWidth())) << " | ";
+
+    std::cout << "Scale factor = " << (uint32_t)((ScreenWidth() * fWidth) / (float)vStringSize.x) << " | ";
+    std::cout << "Screen size = " << uStringScale * vStringSize.x << "\n\n";*/
+    if(!bAutoCenter)
+        DrawString(vStringPos, string, color, uStringScale);
+    else
+    {
+        uint32_t uRealScreenSize = uStringScale * vStringSize.x;
+        vStringPos.x = (int32_t)(0.5f * (ScreenWidth() - uRealScreenSize));
+        DrawString(vStringPos, string, color, uStringScale);
+    }
     return true;
 }
 
@@ -233,4 +340,34 @@ StarSystem::StarSystem(uint32_t x, uint32_t y, bool bGenerateFullSystem)
 
         planets.push_back(p);
     }
+}
+
+olc::vd2d StarSystem::ComputeSystemSize() const
+{
+    olc::vd2d result;
+
+    result.x += starDiameter;
+    result.y = starDiameter;
+    for (const auto& planet : planets)
+    {
+        olc::vd2d systemSize = planet.ComputeSystemSize();
+
+        result.x += planet.distance + systemSize.y;
+        result.y = std::max(result.y, systemSize.x);
+    }
+    return result;
+}
+
+olc::vd2d sPlanet::ComputeSystemSize() const
+{
+    olc::vd2d result;
+
+    result.x += diameter;
+    result.y = diameter;
+    for (const auto& moon : Moons)
+    {
+        result.x += moon.distance + moon.diameter;
+        result.y = std::max(result.y, moon.diameter);
+    }
+    return result;
 }

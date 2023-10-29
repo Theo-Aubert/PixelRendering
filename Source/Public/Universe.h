@@ -2,6 +2,26 @@
 
 #include "../Externals/olcPixelGameEngine.h"
 
+//UI Absolute defines
+
+//Menu
+#define MAIN_TITTLE_WIDTH			0.7f
+#define MAIN_TITTLE_SPACING_LEFT	0.15f
+#define MAIN_TITTLE_SPACING_TOP		0.4f
+
+#define AUTHOR_WIDTH				0.5f
+#define AUTHOR_SPACING_LEFT			0.25f
+#define AUTHOR_SPACING_TOP			0.6f
+									 
+#define CONTINUE_WIDTH				0.9f
+#define CONTINUE_SPACING_LEFT		0.05f
+#define CONTINUE_SPACING_TOP		0.8f
+									 
+//Galaxy Exploration				 
+#define SOLAR_SYSTEM_BOX_WIDTH		0.9f
+#define SOLAR_SYSTEM_BOX_HEIGHT		0.45f
+#define SOLAR_SYSTEM_SPACING_LEFT	0.05f
+#define SOLAR_SYSTEM_SPACING_TOP	0.50f
 
 struct sMoon
 {
@@ -22,6 +42,9 @@ struct sPlanet
 	double population = 0.0f;
 	bool ring = false;
 	std::vector<sMoon> Moons;
+
+	//Sum up the Planet diameter with all its moons' diameter and distance on x axis and return the max diameter of the all system on y
+	olc::vd2d ComputeSystemSize() const;
 };
 
 constexpr uint32_t g_starColors[8] =
@@ -37,6 +60,9 @@ class StarSystem
 public:
 
 	StarSystem(uint32_t x, uint32_t y, bool bGenerateFullSystem = false);
+
+	//Sum up the star diameter with all its planets' SystemSize.y and distance on x axis and return the max diameter of the all system on y
+	olc::vd2d ComputeSystemSize() const;
 
 public :
 
@@ -68,6 +94,12 @@ enum class LevelID : uint8_t
 	Moon
 };
 
+enum class GalaxyStarVisualization : uint8_t
+{
+	Accurate,
+	Simplified
+};
+
 // Override base class with your custom functionality
 class Universe : public olc::PixelGameEngine
 {
@@ -87,20 +119,32 @@ public:
 
 private :
 
+	void GoBackToMainMenu();
+
 	bool UpdateMenu(float fElapsedTime);
 
 	bool UpdateGalaxy(float fElapsedTime);
 
-	bool UpdateSolarSystem(float fElapsedTime);
+	bool UpdateStarSystem(float fElapsedTime);
 
 	bool UpdatePlanet(float fElapsedTime);
 
 	bool UpdateMoon(float fElapsedTime);
 
+	void DrawAccurateStarSystemVisualization(const StarSystem& star);
+
+	void DrawSimplifiedStarSystemVisualization(const StarSystem& star);
+
+	// fWidth, fLeftSpacing and fTopSaping must specifies absolute screen coordinates i. e. [0.0, 1.0]. Values out this range may mess things up 
+	bool DrawNormalizedString(const std::string& string, float fWidth, float fLeftSpacing, float fTopSpacing, bool bAutoCenter = false, const olc::Pixel& color = olc::WHITE);
+
 private :
 
+	//Keep track of the current level
 	LevelID currentLevel = LevelID::Menu;
-
+	GalaxyStarVisualization currentStarVisu = GalaxyStarVisualization::Accurate;
+	
+	//Galaxy Level variables
 	uint8_t sectorSize = 16;
 
 	olc::vf2d universeOffset = { 0,0 };
@@ -112,6 +156,10 @@ private :
 	olc::vi2d selectedStar	 = { 0,0 };
 	olc::vi2d selectedPlanet = { 0,0 };
 	olc::vi2d selectedMoon	 = { 0,0 };
+
+	//Display global states
+	bool bHasMenuBeenDrawn = false;
+	//bool bHasSolarSystemPanelBeenDraw = false;
 
 };
 
