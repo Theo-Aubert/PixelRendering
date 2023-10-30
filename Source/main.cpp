@@ -438,7 +438,7 @@ public:
 		Clear(olc::BLACK);
 		if (GetMouse(olc::Mouse::LEFT).bHeld)
 		{
-			bouncers.push_back(BounceOject(GetMousePos(), olc::vf2d(rand() % 300 - 150, 0.f), olc::Pixel(rand() % 256, rand() % 256, rand() % 256)));
+			bouncers.push_back(BounceOject(GetMousePos(), olc::vf2d(rand() % 300 - 150.f, 0.f), olc::Pixel(rand() % 256, rand() % 256, rand() % 256)));
 		}
 
 		for (auto it = bouncers.begin(); it < bouncers.end(); it++)
@@ -490,7 +490,7 @@ public:
 		}
 	}
 
-	float gravity = 0.2;
+	float gravity = 0.2f;
 	std::vector<BounceOject> bouncers;
 };
 
@@ -653,7 +653,7 @@ int main()
 	srand(time(NULL));
 
 	Universe demo;
-	if (demo.Construct(1080, 520, 1, 1, false))
+	if (demo.Construct(520, 772, 1, 1, false))
 	{
 		demo.Start();
 		demo.olc_UpdateMouseFocus(true);

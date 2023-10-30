@@ -18,6 +18,9 @@ bool Universe::OnUserUpdate(float fElapsedTime)
     case LevelID::Galaxy :
         bState = UpdateGalaxy(fElapsedTime);
         break;
+    case LevelID::SolarSystem :
+        bState = UpdateStarSystem(fElapsedTime);
+        break;
     default:
         break;
     }
@@ -81,40 +84,66 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
         srand((unsigned int)time(NULL));
         seed = rand();
     }
-    if (GetKey(olc::Z).bHeld) universeOffset.y -= 50.0f * fElapsedTime;
-    if (GetKey(olc::S).bHeld) universeOffset.y += 50.0f * fElapsedTime;
-    if (GetKey(olc::Q).bHeld) universeOffset.x -= 50.0f * fElapsedTime;
-    if (GetKey(olc::D).bHeld) universeOffset.x += 50.0f * fElapsedTime;
+    if (GetKey(olc::Z).bHeld) universeOffset.y -= uNumSectorSizeX * fElapsedTime;
+    if (GetKey(olc::S).bHeld) universeOffset.y += uNumSectorSizeX * fElapsedTime;
+    if (GetKey(olc::Q).bHeld) universeOffset.x -= uNumSectorSizeX * fElapsedTime;
+    if (GetKey(olc::D).bHeld) universeOffset.x += uNumSectorSizeX * fElapsedTime;
 
+    if (GetKey(olc::NP1).bReleased && bStarSelected) currentStarVisu = GalaxyStarVisualization::Accurate;
+    if (GetKey(olc::NP2).bReleased && bStarSelected) currentStarVisu = GalaxyStarVisualization::Simplified;
+    if (GetKey(olc::NP3).bReleased && bStarSelected) currentLevel = LevelID::SolarSystem;
 
-    //if (GetMouseWheel() > 0) sectorSize = std::max(1, sectorSize / 2);
-    //if (GetMouseWheel() < 0) sectorSize = std::min(128, sectorSize * 2);
+    if (GetMouseWheel() > 0)
+    {
+        uNumSectorSizeX = std::max(1, uNumSectorSizeX / 2);
+        uint16_t uSectorSize = ScreenWidth() / uNumSectorSizeX;
+        olc::vi2d mouse = { GetMouseX() / uSectorSize, GetMouseY() / uSectorSize };
+
+        universeOffset += mouse * SECTOR_SIZE - olc::vf2d((uNumSectorSizeX / 2) * SECTOR_SIZE, (uNumSectorSizeX / 2) * SECTOR_SIZE);
+    }
+    if (GetMouseWheel() < 0)
+    {
+        uint16_t uSectorSize = ScreenWidth() / uNumSectorSizeX;
+        olc::vi2d mouse = { GetMouseX() / uSectorSize, GetMouseY() / uSectorSize };
+
+        universeOffset -= olc::vf2d((uNumSectorSizeX / 2) * SECTOR_SIZE, (uNumSectorSizeX / 2) * SECTOR_SIZE);
+        uNumSectorSizeX = std::min(512, uNumSectorSizeX * 2);
+    }
 
     Clear(olc::BLACK);
 
-    olc::vi2d mouse = { GetMouseX() / sectorSize, GetMouseY() / sectorSize };
+    uint16_t numSectorX = uNumSectorSizeX;
+    uint16_t numSectorY = (uint16_t)std::floor(uNumSectorSizeX * ((double)ScreenHeight() / ScreenWidth()));
+
+    //std::cout << (int)numSectorY << "\n";
+    uint16_t uSectorSize = ScreenWidth() / numSectorX;
+
+
+    //olc::vi2d mouse = { GetMouseX() / sectorSize, GetMouseY() / sectorSize };
+    olc::vi2d mouse = { GetMouseX() / uSectorSize, GetMouseY() / uSectorSize };
     olc::vi2d universeMouse = mouse + universeOffset;
 
     uint8_t halfSectorSize = 8; // std::max((uint8_t)1, (uint8_t)(sectorSize / 2));
+    uint16_t uHalfSectorSize = uSectorSize / 2;
 
     int nSectorsX = ScreenWidth() / sectorSize;
     int nSectorsY = ScreenHeight() / sectorSize;
 
     olc::vi2d screenSector = { 0,0 };
 
-    for (screenSector.x = 0; screenSector.x < nSectorsX; screenSector.x++)
+    for (screenSector.x = 0; screenSector.x < numSectorX; screenSector.x++)
     {
-        for (screenSector.y = 0; screenSector.y < nSectorsY; screenSector.y++)
+        for (screenSector.y = 0; screenSector.y < numSectorY; screenSector.y++)
         {
             StarSystem star(screenSector.x + (uint32_t)universeOffset.x, screenSector.y + (uint32_t)universeOffset.y);
 
             if (star.bStarExists)
             {
-                FillCircle(screenSector.x * sectorSize + halfSectorSize, screenSector.y * sectorSize + halfSectorSize, (int)(star.starDiameter / halfSectorSize), star.starColor);
+                FillCircle(screenSector.x * uSectorSize + uHalfSectorSize, screenSector.y * uSectorSize + uHalfSectorSize, (int)(star.starDiameter / uNumSectorSizeX), star.starColor);
 
                 if (mouse.x == screenSector.x && mouse.y == screenSector.y)
                 {
-                    DrawCircle(screenSector.x * sectorSize + halfSectorSize, screenSector.y * sectorSize + halfSectorSize, (int)(star.starDiameter / halfSectorSize) + 2, olc::YELLOW);
+                    DrawCircle(screenSector.x * uSectorSize + uHalfSectorSize, screenSector.y * uSectorSize + uHalfSectorSize, (int)(star.starDiameter / uNumSectorSizeX) + 2, olc::YELLOW);
                 }
             }
         }
@@ -160,6 +189,38 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
     return true;
 }
 
+bool Universe::UpdateStarSystem(float fElapsedTime)
+{
+    if (GetKey(olc::ESCAPE).bReleased) currentLevel = LevelID::Galaxy;
+
+    Clear(olc::BLACK);
+
+    StarSystem star(selectedStar.x, selectedStar.y, true);
+
+    if (star.bStarExists)
+    {
+        olc::vi2d vCenterPos = olc::vi2d{ ScreenWidth() / 2, ScreenHeight() / 2 };
+
+        olc::vd2d vSystemSize   = star.ComputeSystemSize();
+        double dSystemLength    = star.OuterBound();
+        double dScalingFactor   = std::min((ScreenWidth() - 10) / (/*2.0 */ dSystemLength), (ScreenHeight() - 10) / (/*2.0 */ dSystemLength));
+
+        FillCircle(vCenterPos, (int32_t)(star.starDiameter * dScalingFactor / 2.0), star.starColor);
+
+        for (const auto& planet : star.planets)
+        {
+            olc::vi2d vStarPos = vCenterPos;
+            vStarPos.x += planet.distance * dScalingFactor / 2.0;
+            DrawCircle(vCenterPos   , (int32_t)(planet.distance * dScalingFactor / 2.0));
+            FillCircle(vStarPos     , (int32_t)(planet.diameter * dScalingFactor / 2.0)   , olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
+        }
+
+    }
+
+    //DrawCircle(250, 250, 250);
+    return true;
+}
+
 void Universe::DrawAccurateStarSystemVisualization(const StarSystem& star)
 {
     //Draw Window
@@ -183,16 +244,9 @@ void Universe::DrawAccurateStarSystemVisualization(const StarSystem& star)
     olc::vd2d vScalingVector = olc::vd2d((rectSize.x - 10.0 /*5 pixels margin left and right*/) / vSystemSize.x, (rectSize.y - 10.0 /*5 pixels margin up and down*/) / vSystemSize.y);
     double dScalingVector = std::min((rectSize.x - 10.0 /*5 pixels margin left and right*/) / vSystemSize.x, (rectSize.y - 10.0 /*5 pixels margin up and down*/) / vSystemSize.y); //px.unit^-1
     
-
-    //int32_t uTopSpacing = rectPos.y + 5 + (uint32_t)(widestBodyDiameter * vScalingVector.x);
-    int32_t uTopSpacing = rectPos.y + 5 + (uint32_t)(widestBodyDiameter * dScalingVector / 2.0);
-
-    //DrawRect(rectPos + olc::vi2d(10, 10), star.ComputeSystemSize(), olc::RED);
+    int32_t uTopSpacing = rectPos.y + 5 + (uint32_t)(widestBodyDiameter * dScalingVector / 2.0) + (uint32_t)((rectSize.y - vSystemSize.y * dScalingVector)  / 2.0);
 
     olc::vi2d vBody = { rectPos.x + 5, uTopSpacing };
-    // vBody.x += (int32_t)(star.starDiameter * vScalingVector.x);
-     //FillCircle(vBody, (int)(star.starDiameter * vScalingVector.x), star.starColor);
-
     vBody.x += (int32_t)(star.starDiameter * dScalingVector / 2.0);
     FillCircle(vBody, (int)(star.starDiameter * dScalingVector / 2.0), star.starColor);
     vBody.x += (int32_t)(star.starDiameter * dScalingVector / 2.0);
@@ -200,12 +254,8 @@ void Universe::DrawAccurateStarSystemVisualization(const StarSystem& star)
     //Draw Planets
     for (const sPlanet& planet : star.planets)
     {
-        if (vBody.x + planet.diameter * dScalingVector >= (rectPos.x + rectSize.x) - 5.0) break;
-
-        /*vBody.x += (int32_t)(planet.distance * vScalingVector.x);
-        vBody.x += (int32_t)(planet.diameter * vScalingVector.x);
-        FillCircle(vBody, (int)(planet.diameter * vScalingVector.x), olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));*/
-
+        if (vBody.x + (planet.distance + planet.diameter) * dScalingVector >= (rectPos.x + rectSize.x) - 5.0) break;
+       
         vBody.x += (int32_t)(planet.distance * dScalingVector);
         vBody.x += (int32_t)(planet.diameter * dScalingVector / 2.0);
         FillCircle(vBody, (int)(planet.diameter * dScalingVector / 2.0), olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
@@ -226,12 +276,62 @@ void Universe::DrawAccurateStarSystemVisualization(const StarSystem& star)
         vBody.x += (int32_t)(planet.diameter * dScalingVector / 2.0);
 
     }
-
-    //bHasSolarSystemPanelBeenDraw = true;
 }
 
 void Universe::DrawSimplifiedStarSystemVisualization(const StarSystem& star)
 {
+    //Draw Window
+
+    olc::vi2d rectSize = olc::vi2d(SOLAR_SYSTEM_BOX_WIDTH * ScreenWidth(), SOLAR_SYSTEM_BOX_HEIGHT * ScreenHeight());
+    olc::vi2d rectPos = olc::vi2d(SOLAR_SYSTEM_SPACING_LEFT * ScreenWidth(), SOLAR_SYSTEM_SPACING_TOP * ScreenHeight());
+
+    FillRect(rectPos, rectSize, olc::DARK_BLUE);
+    DrawRect(rectPos, rectSize, olc::WHITE);
+
+
+    //Get the biggest body in our system (should be the star, but we never know :) )
+    double widestBodyDiameter = star.starDiameter;
+    for (const sPlanet& planet : star.planets)
+    {
+        widestBodyDiameter = std::max(widestBodyDiameter, planet.diameter);
+    }
+
+    //Normalizing system size to fit in the box
+    olc::vd2d vSystemSize = star.ComputeSimplifiedSystemSize();
+    olc::vd2d vScalingVector = olc::vd2d((rectSize.x - 10.0 /*5 pixels margin left and right*/) / vSystemSize.x, (rectSize.y - 10.0 /*5 pixels margin up and down*/) / vSystemSize.y);
+    double dScalingVector = std::min((rectSize.x - 10.0 /*5 pixels margin left and right*/) / vSystemSize.x, (rectSize.y - 10.0 /*5 pixels margin up and down*/) / vSystemSize.y); //px.unit^-1
+
+    int32_t uTopSpacing = rectPos.y + 5 + (uint32_t)(widestBodyDiameter * dScalingVector / 2.0) + (uint32_t)((rectSize.y - vSystemSize.y * dScalingVector) / 2.0);
+
+    olc::vi2d vBody = { rectPos.x + 5, uTopSpacing };
+    vBody.x += (int32_t)(star.starDiameter * dScalingVector / 2.0);
+    FillCircle(vBody, (int)(star.starDiameter * dScalingVector / 2.0), star.starColor);
+    vBody.x += (int32_t)(star.starDiameter * dScalingVector / 2.0);
+
+    //Draw Planets
+    for (const sPlanet& planet : star.planets)
+    {
+        if (vBody.x + planet.diameter * dScalingVector >= (rectPos.x + rectSize.x) - 5.0) break;
+
+        vBody.x += (int32_t)(SOLAR_SYSTEM_PLANET_DISTANCE * dScalingVector);
+        vBody.x += (int32_t)(planet.diameter * dScalingVector / 2.0);
+        FillCircle(vBody, (int)(planet.diameter * dScalingVector / 2.0), olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
+
+        olc::vi2d vMoon = vBody;
+        for (const sMoon& moon : planet.Moons)
+        {
+            if (vMoon.y + (moon.diameter + planet.diameter / 2.0 + moon.distance) * dScalingVector >= (rectPos.y + rectSize.y)) break;
+
+            vMoon.y += (int32_t)(planet.diameter * dScalingVector / 2.0);
+            vMoon.y += (int32_t)(SOLAR_SYSTEM_MOON_DISTANCE * dScalingVector);
+            vMoon.y += (int32_t)(moon.diameter * dScalingVector / 2.0);
+            FillCircle(vMoon, (int)std::min(1.0, (moon.diameter * dScalingVector / 2.0)), olc::GREY);
+            vMoon.y += (int32_t)(moon.diameter * dScalingVector / 2.0);
+        }
+
+        vBody.x += (int32_t)(planet.diameter * dScalingVector / 2.0);
+
+    }
 }
 
 bool Universe::DrawNormalizedString(const std::string& string, float fWidth, float fLeftSpacing, float fTopSpacing, bool bAutoCenter, const olc::Pixel& color)
@@ -358,6 +458,33 @@ olc::vd2d StarSystem::ComputeSystemSize() const
     return result;
 }
 
+olc::vd2d StarSystem::ComputeSimplifiedSystemSize() const
+{
+    olc::vd2d result;
+
+    result.x += starDiameter;
+    result.y = starDiameter;
+    for (const auto& planet : planets)
+    {
+        olc::vd2d systemSize = planet.ComputeSimplifiedSystemSize();
+
+        result.x += SOLAR_SYSTEM_PLANET_DISTANCE + systemSize.y;
+        result.y = std::max(result.y, systemSize.x);
+    }
+    return result;
+}
+
+double StarSystem::OuterBound() const
+{
+    double result = starDiameter / 2.0;
+    if (planets.size())
+    {
+        sPlanet farMostPlanet = planets.back();
+        result = farMostPlanet.distance + (farMostPlanet.diameter / 2.0);
+    }
+    return result;
+}
+
 olc::vd2d sPlanet::ComputeSystemSize() const
 {
     olc::vd2d result;
@@ -368,6 +495,31 @@ olc::vd2d sPlanet::ComputeSystemSize() const
     {
         result.x += moon.distance + moon.diameter;
         result.y = std::max(result.y, moon.diameter);
+    }
+    return result;
+}
+
+olc::vd2d sPlanet::ComputeSimplifiedSystemSize() const
+{
+    olc::vd2d result;
+
+    result.x += diameter;
+    result.y = diameter;
+    for (const auto& moon : Moons)
+    {
+        result.x += SOLAR_SYSTEM_MOON_DISTANCE + moon.diameter;
+        result.y = std::max(result.y, moon.diameter);
+    }
+    return result;
+}
+
+double sPlanet::ComputeOuterBound() const
+{
+    double result = diameter / 2.0;
+    if (Moons.size())
+    {
+        sMoon farMostMoon = Moons.back();
+        result = farMostMoon.distance + (farMostMoon.diameter / 2.0);
     }
     return result;
 }

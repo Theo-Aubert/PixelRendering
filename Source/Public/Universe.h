@@ -17,11 +17,15 @@
 #define CONTINUE_SPACING_LEFT		0.05f
 #define CONTINUE_SPACING_TOP		0.8f
 									 
-//Galaxy Exploration				 
+//Galaxy Exploration			 
 #define SOLAR_SYSTEM_BOX_WIDTH		0.9f
 #define SOLAR_SYSTEM_BOX_HEIGHT		0.45f
 #define SOLAR_SYSTEM_SPACING_LEFT	0.05f
 #define SOLAR_SYSTEM_SPACING_TOP	0.50f
+
+#define SECTOR_SIZE						500.
+#define SOLAR_SYSTEM_MOON_DISTANCE		5.
+#define SOLAR_SYSTEM_PLANET_DISTANCE	15.
 
 struct sMoon
 {
@@ -45,6 +49,11 @@ struct sPlanet
 
 	//Sum up the Planet diameter with all its moons' diameter and distance on x axis and return the max diameter of the all system on y
 	olc::vd2d ComputeSystemSize() const;
+
+	//Same has abose but convert distance to constants
+	olc::vd2d ComputeSimplifiedSystemSize() const;
+
+	double ComputeOuterBound() const;
 };
 
 constexpr uint32_t g_starColors[8] =
@@ -63,6 +72,12 @@ public:
 
 	//Sum up the star diameter with all its planets' SystemSize.y and distance on x axis and return the max diameter of the all system on y
 	olc::vd2d ComputeSystemSize() const;
+
+	//Same has abose but convert distance to constants
+	olc::vd2d ComputeSimplifiedSystemSize() const;
+
+	//Compute the greatest distance from center to star system to its farmost body (moons not included) 
+	double OuterBound() const;
 
 public :
 
@@ -146,6 +161,7 @@ private :
 	
 	//Galaxy Level variables
 	uint8_t sectorSize = 16;
+	uint16_t uNumSectorSizeX = 64;
 
 	olc::vf2d universeOffset = { 0,0 };
 
