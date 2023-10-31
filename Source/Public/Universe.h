@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Externals/olcPixelGameEngine.h"
+#include "Constants.h"
 
 //UI Absolute defines
 
@@ -32,12 +33,17 @@ struct sMoon
 
 	double distance = 0.0;
 	double diameter = 0.0;
+
+	double angularSpeed = 0.0;
+	double angle = 0.0;
 };
 
 struct sPlanet
 {
 	double distance = 0.0;
 	double diameter = 0.0;
+	double angularSpeed = 0.0;
+	double angle = 0.0;
 	double foliage = 0.0;
 	double minerals = 0.0;
 	double water = 0.0;
@@ -160,6 +166,11 @@ private :
 	GalaxyStarVisualization currentStarVisu = GalaxyStarVisualization::Accurate;
 	
 	//Galaxy Level variables
+	olc::Sprite* pAccurateDisplaySprite = nullptr;
+	olc::Sprite* pSimplifiedDisplaySprite = nullptr;
+
+	olc::vi2d vDisplayTopLeftCorner;
+
 	uint8_t sectorSize = 16;
 	uint16_t uNumSectorSizeX = 64;
 
@@ -172,6 +183,8 @@ private :
 	olc::vi2d selectedStar	 = { 0,0 };
 	olc::vi2d selectedPlanet = { 0,0 };
 	olc::vi2d selectedMoon	 = { 0,0 };
+
+	StarSystem* pGazedStar = nullptr;
 
 	//Display global states
 	bool bHasMenuBeenDrawn = false;
