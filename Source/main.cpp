@@ -3,6 +3,7 @@
 #include "Public/Shadow.h"
 #include "Public/SandSimulation.h"
 #include "Public/Universe.h"
+#include "Public/DreamCatcher.h"
 #include <cmath>
 
 // Override base class with your custom functionality
@@ -652,8 +653,9 @@ int main()
 {
 	srand(time(NULL));
 
-	Universe demo;
-	if (demo.Construct(520, 772, 1, 1, false))
+	DreamCatcher demo;
+	//Universe demo;
+	if (demo.Construct(520, 520, 1, 1, false))
 	{
 		demo.Start();
 		demo.olc_UpdateMouseFocus(true);

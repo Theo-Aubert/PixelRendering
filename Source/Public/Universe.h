@@ -152,6 +152,10 @@ private :
 
 	bool UpdateMoon(float fElapsedTime);
 
+	void DrawMenuBackground(float fElapsedTime);
+	//TO DO specify box to draw in
+	void DrawPlanetSystem(StarSystem* pStar, float fElapsedTime);
+
 	void DrawAccurateStarSystemVisualization(const StarSystem& star);
 
 	void DrawSimplifiedStarSystemVisualization(const StarSystem& star);
@@ -161,6 +165,7 @@ private :
 
 private :
 
+	StarSystem* pMenuStar = nullptr;
 	//Keep track of the current level
 	LevelID currentLevel = LevelID::Menu;
 	GalaxyStarVisualization currentStarVisu = GalaxyStarVisualization::Accurate;

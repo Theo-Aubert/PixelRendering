@@ -8,6 +8,12 @@ bool Universe::OnUserCreate()
 
     vDisplayTopLeftCorner = olc::vi2d(SOLAR_SYSTEM_SPACING_LEFT * ScreenWidth(), SOLAR_SYSTEM_SPACING_TOP * ScreenHeight());
 
+    srand(time(NULL));
+    while (!pMenuStar || !pMenuStar->bStarExists)
+    {
+        pMenuStar = new StarSystem(rand(), rand(), true);
+    }
+
     return true;
 }
 
@@ -55,10 +61,12 @@ bool Universe::UpdateMenu(float fElapsedTime)
         return false;
 
     //Display
-    if (!bHasMenuBeenDrawn)
+    //if (!bHasMenuBeenDrawn)
     {
 
         Clear(olc::BLACK);
+
+        DrawMenuBackground(fElapsedTime);
 
         std::string strMainTittle   = "Ocean of Stars";
         std::string strAuthor       = "A simulation by TAU";
@@ -243,46 +251,92 @@ bool Universe::UpdateStarSystem(float fElapsedTime)
 
     if (pGazedStar->bStarExists)
     {
-        olc::vi2d vStarPos = olc::vi2d{ ScreenWidth() / 2, ScreenHeight() / 2 };
+        DrawPlanetSystem(pGazedStar, fElapsedTime);
+        //olc::vi2d vStarPos = olc::vi2d{ ScreenWidth() / 2, ScreenHeight() / 2 };
 
-        olc::vd2d vSystemSize   = pGazedStar->ComputeSystemSize();
-        double dSystemLength    = pGazedStar->OuterBound();
-        double dScalingFactor   = std::min((ScreenWidth() - 10) / (/*2.0 */ dSystemLength), (ScreenHeight() - 10) / (/*2.0 */ dSystemLength));
+        //olc::vd2d vSystemSize   = pGazedStar->ComputeSystemSize();
+        //double dSystemLength    = pGazedStar->OuterBound();
+        //double dScalingFactor   = std::min((ScreenWidth() - 10) / (/*2.0 */ dSystemLength), (ScreenHeight() - 10) / (/*2.0 */ dSystemLength));
 
-        FillCircle(vStarPos, (int32_t)((pGazedStar->starDiameter * dScalingFactor / 2.0) /* 1.375*/), pGazedStar->starColor);
+        //FillCircle(vStarPos, (int32_t)((pGazedStar->starDiameter * dScalingFactor / 2.0) /* 1.375*/), pGazedStar->starColor);
 
-        for (auto& planet : pGazedStar->planets)
-        {
-            olc::vi2d vPlanetPos = vStarPos;
-            
-            DrawCircle(vPlanetPos   , (int32_t)(planet.distance * dScalingFactor / 2.0));
+        //for (auto& planet : pGazedStar->planets)
+        //{
+        //    olc::vi2d vPlanetPos = vStarPos;
+        //    
+        //    DrawCircle(vPlanetPos   , (int32_t)(planet.distance * dScalingFactor / 2.0));
 
-            //Planet rotation
-            vPlanetPos.x += cos(planet.angle) * planet.distance * dScalingFactor / 2.0;
-            vPlanetPos.y += sin(planet.angle) * planet.distance * dScalingFactor / 2.0;
-            planet.angle += planet.angularSpeed * fElapsedTime;
+        //    //Planet rotation
+        //    vPlanetPos.x += cos(planet.angle) * planet.distance * dScalingFactor / 2.0;
+        //    vPlanetPos.y += sin(planet.angle) * planet.distance * dScalingFactor / 2.0;
+        //    planet.angle += planet.angularSpeed * fElapsedTime;
 
-            FillCircle(vPlanetPos     , (int32_t)((planet.diameter * dScalingFactor / 2.0) /* 1.375*/)   , olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
+        //    FillCircle(vPlanetPos     , (int32_t)((planet.diameter * dScalingFactor / 2.0) /* 1.375*/)   , olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
 
-            for (auto& moon : planet.Moons)
-            {
-                olc::vi2d vMoonPos = vPlanetPos;
+        //    for (auto& moon : planet.Moons)
+        //    {
+        //        olc::vi2d vMoonPos = vPlanetPos;
 
-                DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
+        //        DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
 
-                vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
-                vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;
-                moon.angle += moon.angularSpeed;
+        //        vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
+        //        vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;
+        //        moon.angle += moon.angularSpeed * fElapsedTime;
 
-                FillCircle(vMoonPos, (int32_t)((moon.diameter * dScalingFactor / 2.0) /* 1.375*/), olc::GREY);
-            }
-        }
+        //        FillCircle(vMoonPos, (int32_t)((moon.diameter * dScalingFactor / 2.0) /* 1.375*/), olc::GREY);
+        //    }
+        //}
 
     }
 
     
     //DrawCircle(250, 250, 250);
     return true;
+}
+
+void Universe::DrawMenuBackground(float fElapsedTime)
+{
+
+    DrawPlanetSystem(pMenuStar, fElapsedTime);
+  
+}
+
+void Universe::DrawPlanetSystem(StarSystem* pStar, float fElapsedTime)
+{
+    olc::vi2d vStarPos = olc::vi2d{ ScreenWidth() / 2, ScreenHeight() / 2 };
+
+    olc::vd2d vSystemSize = pStar->ComputeSystemSize();
+    double dSystemLength = pStar->OuterBound();
+    double dScalingFactor = std::min((ScreenWidth() - 10) / (/*2.0 */ dSystemLength), (ScreenHeight() - 10) / (/*2.0 */ dSystemLength));
+
+    FillCircle(vStarPos, (int32_t)((pStar->starDiameter * dScalingFactor / 2.0) /* 1.375*/), pStar->starColor);
+
+    for (auto& planet : pStar->planets)
+    {
+        olc::vi2d vPlanetPos = vStarPos;
+
+        DrawCircle(vPlanetPos, (int32_t)(planet.distance * dScalingFactor / 2.0));
+
+        //Planet rotation
+        vPlanetPos.x += cos(planet.angle) * planet.distance * dScalingFactor / 2.0;
+        vPlanetPos.y += sin(planet.angle) * planet.distance * dScalingFactor / 2.0;
+        planet.angle += planet.angularSpeed * fElapsedTime;
+
+        FillCircle(vPlanetPos, (int32_t)((planet.diameter * dScalingFactor / 2.0) /* 1.375*/), olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
+
+        for (auto& moon : planet.Moons)
+        {
+            olc::vi2d vMoonPos = vPlanetPos;
+
+            DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
+
+            vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
+            vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;
+            moon.angle += moon.angularSpeed * fElapsedTime;
+
+            FillCircle(vMoonPos, (int32_t)((moon.diameter * dScalingFactor / 2.0) /* 1.375*/), olc::GREY);
+        }
+    }
 }
 
 void Universe::DrawAccurateStarSystemVisualization(const StarSystem& star)
@@ -473,13 +527,18 @@ StarSystem::StarSystem(uint32_t x, uint32_t y, bool bGenerateFullSystem)
     if (!bGenerateFullSystem) return;
 
     double dDistanceFromStar = rndDouble(60.0, 200.0);
+    double dPreviousPlanetDist = starDiameter / 2.0;
     int nPlanets = rndInt(0, 10);
     for (int i = 0; i < nPlanets; i++)
     {
         sPlanet p;
-        p.distance = dDistanceFromStar;
-        dDistanceFromStar += rndDouble(20.0, 200.0);
         p.diameter = rndDouble(4.0, 20.0);
+        dDistanceFromStar += dPreviousPlanetDist + p.diameter / 2.0 + rndDouble(20.0, 200.0);
+        dPreviousPlanetDist = p.diameter / 2.0;
+
+        p.distance = dDistanceFromStar;
+        
+       
         p.angularSpeed = rndDouble(-PI / 8.0, PI / 8.0);
         p.angle = rndDouble(0.0, 2 * PI);
 
@@ -503,13 +562,19 @@ StarSystem::StarSystem(uint32_t x, uint32_t y, bool bGenerateFullSystem)
         p.population = std::max(rndInt(-5000000, 20000000), 0);
 
         int nMoons = std::max(rndInt(-15, 25), 0);
+        double dPreviousBodyDist = p.diameter / 2;
+        double dDistanceFromPlanet = rndDouble(5., 20.);
+
         for (int j = 0; j < nMoons; j++)
         {
             sMoon moon;
             moon.diameter = rndDouble(0.05, 0.35) * p.diameter;
-            moon.distance = rndDouble(5., 20.0);
+            dDistanceFromPlanet += dPreviousBodyDist + moon.diameter / 2.0 + rndDouble(5., 20.0);
+            moon.distance = dDistanceFromPlanet;
 
-            moon.angularSpeed = rndDouble(-PI / (moon.distance *256.0), PI / (moon.distance * 256.0));
+            dPreviousBodyDist = moon.diameter / 2.0;
+
+            moon.angularSpeed = rndDouble(-PI / moon.distance, PI / moon.distance);
             moon.angle = rndDouble(0.0, 2 * PI);
 
             p.Moons.push_back(moon);
