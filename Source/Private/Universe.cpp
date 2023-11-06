@@ -221,6 +221,22 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
 
 bool Universe::UpdateStarSystem(float fElapsedTime)
 {
+
+    if (GetKey(olc::O).bReleased) bShowPlanetOrbits = !bShowPlanetOrbits;
+    if (GetKey(olc::M).bReleased) bShowMoonOrbits = !bShowMoonOrbits;
+
+    if (GetKey(olc::NP1).bReleased && bStarSelected)
+    {
+        currentLevel = LevelID::Galaxy;
+        currentStarVisu = GalaxyStarVisualization::Accurate;
+    }
+
+    if (GetKey(olc::NP2).bReleased && bStarSelected)
+    {
+        currentLevel = LevelID::Galaxy;
+        currentStarVisu = GalaxyStarVisualization::Simplified;
+    }
+
     if (GetKey(olc::ESCAPE).bReleased || !pGazedStar) currentLevel = LevelID::Galaxy;
 
     Clear(olc::BLACK);
@@ -260,11 +276,20 @@ bool Universe::UpdateStarSystem(float fElapsedTime)
 
         //FillCircle(vStarPos, (int32_t)((pGazedStar->starDiameter * dScalingFactor / 2.0) /* 1.375*/), pGazedStar->starColor);
 
+<<<<<<< Updated upstream
         //for (auto& planet : pGazedStar->planets)
         //{
         //    olc::vi2d vPlanetPos = vStarPos;
         //    
         //    DrawCircle(vPlanetPos   , (int32_t)(planet.distance * dScalingFactor / 2.0));
+=======
+        for (auto& planet : pGazedStar->planets)
+        {
+            olc::vi2d vPlanetPos = vStarPos;
+            
+            if(bShowPlanetOrbits)
+                DrawCircle(vPlanetPos   , (int32_t)(planet.distance * dScalingFactor / 2.0));
+>>>>>>> Stashed changes
 
         //    //Planet rotation
         //    vPlanetPos.x += cos(planet.angle) * planet.distance * dScalingFactor / 2.0;
@@ -277,11 +302,20 @@ bool Universe::UpdateStarSystem(float fElapsedTime)
         //    {
         //        olc::vi2d vMoonPos = vPlanetPos;
 
+<<<<<<< Updated upstream
         //        DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
 
         //        vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
         //        vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;
         //        moon.angle += moon.angularSpeed * fElapsedTime;
+=======
+                if(bShowMoonOrbits)
+                    DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
+
+                vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
+                vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;
+                moon.angle += moon.angularSpeed * fElapsedTime;
+>>>>>>> Stashed changes
 
         //        FillCircle(vMoonPos, (int32_t)((moon.diameter * dScalingFactor / 2.0) /* 1.375*/), olc::GREY);
         //    }
@@ -572,9 +606,13 @@ StarSystem::StarSystem(uint32_t x, uint32_t y, bool bGenerateFullSystem)
             dDistanceFromPlanet += dPreviousBodyDist + moon.diameter / 2.0 + rndDouble(5., 20.0);
             moon.distance = dDistanceFromPlanet;
 
+<<<<<<< Updated upstream
             dPreviousBodyDist = moon.diameter / 2.0;
 
             moon.angularSpeed = rndDouble(-PI / moon.distance, PI / moon.distance);
+=======
+            moon.angularSpeed = rndDouble(-PI / (moon.distance), PI / (moon.distance));
+>>>>>>> Stashed changes
             moon.angle = rndDouble(0.0, 2 * PI);
 
             p.Moons.push_back(moon);

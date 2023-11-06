@@ -191,6 +191,9 @@ private :
 
 	StarSystem* pGazedStar = nullptr;
 
+	bool bShowPlanetOrbits = true;
+	bool bShowMoonOrbits = true;
+
 	//Display global states
 	bool bHasMenuBeenDrawn = false;
 	//bool bHasSolarSystemPanelBeenDraw = false;
