@@ -12,13 +12,6 @@ public:
 
 	public:
 
-		Trinket() {};
-
-		Trinket(Trinket* pParent);
-
-		Trinket(std::shared_ptr<Trinket> pParent);
-
-
 		~Trinket();
 
 		void SetRenderer(olc::PixelGameEngine* pRenderer);
@@ -50,9 +43,19 @@ public:
 	{
 	public:
 
+		struct sCircleChild
+		{
+			double dAngle;
+			double dRadiusOffset;
+		};
+
 		virtual void Update(float fElapsedTime) override;
 
 		virtual void Draw(float fElapsedTime) override;
+
+		virtual void AddChild(std::shared_ptr<Trinket> pChild) override;
+
+		virtual void AddChild(std::shared_ptr<Trinket> pChild, double dAngle = 0.0, double dRadiusOffset = 0.0);
 
 		double dRadius;
 		bool bFilled = false;
@@ -61,8 +64,9 @@ public:
 
 	protected:
 
+		std::map< std::shared_ptr<Trinket>, sCircleChild> mapChildren;
 		
-		double dAngle;
+		double m_dAngle;
 	};
 
 	DreamCatcher()
@@ -77,11 +81,5 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override;
 
 	std::shared_ptr<Trinket> pRoot;
-
-	olc::vd2d center = { 0.5, 0.5 };
-	olc::vd2d pos = center;
-	double radius = 0.25;
-	double angle = 0.0;
-	double anuglarSpeed = PI / 16.;
 };
 

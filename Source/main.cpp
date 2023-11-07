@@ -658,8 +658,8 @@ int main()
 	if (demo.Construct(520, 520, 1, 1, false))
 	{
 		demo.Start();
-		demo.olc_UpdateMouseFocus(true);
-		demo.olc_UpdateKeyFocus(true);
+		//demo.olc_UpdateMouseFocus(true);
+		//demo.olc_UpdateKeyFocus(true);
 	}
 	return 0;
 }

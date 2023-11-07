@@ -2,14 +2,17 @@
 
 void  DreamCatcher::Circle::Update(float fElapsedTime)
 {
-	for (auto& child : vChildren)
+	if (dAngularSpeed != 0.0)
 	{
-		m_pRenderer->DrawCircle(child->dPos.x * m_pRenderer->GetDrawTargetWidth(), child->dPos.y * m_pRenderer->GetDrawTargetHeight(), 10, olc::YELLOW);
-		child->dPos.x = dPos.x + cos(dAngle) * dRadius;
-		child->dPos.y = dPos.y + sin(dAngle) * dRadius;
-    	dAngle += dAngularSpeed * fElapsedTime;
+		for (auto& child : vChildren)
 
-		child->Update(fElapsedTime);
+		{
+			child->dPos.x = dPos.x + cos(m_dAngle + mapChildren[child].dAngle) * (dRadius + mapChildren[child].dRadiusOffset);
+			child->dPos.y = dPos.y + sin(m_dAngle + mapChildren[child].dAngle) * (dRadius + mapChildren[child].dRadiusOffset);
+    		m_dAngle += dAngularSpeed * fElapsedTime;
+
+			child->Update(fElapsedTime);
+		}
 	}
 }
 
@@ -28,6 +31,35 @@ void  DreamCatcher::Circle::Draw   (float fElapsedTime)
 	}
 }
 
+void DreamCatcher::Circle::AddChild(std::shared_ptr<Trinket> pChild)
+{
+	Trinket::AddChild(pChild);
+}
+
+void DreamCatcher::Circle::AddChild(std::shared_ptr<Trinket> pChild, double dAngle, double dRadiusOffset)
+{
+	Trinket::AddChild(pChild);
+
+	if (!pChild)
+	{
+		return;
+	}
+
+
+	if (!mapChildren.contains(pChild))
+	{
+		sCircleChild c(dAngle, dRadiusOffset);
+		mapChildren.emplace(pChild, c);
+	}
+	else
+	{
+		mapChildren[pChild].dAngle			= dAngle;
+		mapChildren[pChild].dRadiusOffset	= dRadiusOffset;
+
+	}
+
+}
+
 DreamCatcher::Trinket::~Trinket()
 {
 	for (auto& child : vChildren)
@@ -43,9 +75,13 @@ void DreamCatcher::Trinket::SetRenderer(olc::PixelGameEngine* pRenderer)
 
 void DreamCatcher::Trinket::AddChild(std::shared_ptr<Trinket> pChild)
 {
-	pChild->SetRenderer(m_pRenderer);
+	if (pChild)
+	{
 
-	vChildren.push_back(pChild);
+		pChild->SetRenderer(m_pRenderer);
+
+		vChildren.push_back(pChild);
+	}
 }
 
 void DreamCatcher::Trinket::Update(float fElapsedTime)
@@ -73,20 +109,57 @@ bool DreamCatcher::OnUserCreate()
 
 	pRoot->SetRenderer(this);
 
-	std::shared_ptr<Circle> Circle0 = std::make_shared<Circle>();
-	std::shared_ptr<Circle> Circle1 = std::make_shared<Circle>();
+	std::shared_ptr<Circle> MainCircle		= std::make_shared<Circle>();
+	std::shared_ptr<Circle> InnerLeftCircle = std::make_shared<Circle>();
+	std::shared_ptr<Circle> OuterLeftCircle = std::make_shared<Circle>();
+	std::shared_ptr<Circle> InnerRightCircle= std::make_shared<Circle>();
+	std::shared_ptr<Circle> OuterRightCircle= std::make_shared<Circle>();
+	std::shared_ptr<Circle> BlueBall		= std::make_shared<Circle>();
+	std::shared_ptr<Circle> GreenBall		= std::make_shared<Circle>();
 
-	Circle0->dPos = { 0.5, 0.5 };
-	Circle0->dRadius = 0.25;
-	Circle0->dAngularSpeed = PI / 16.;
 
-	Circle1->dPos = { (Circle0->dPos.x + Circle0->dRadius), 0.5 };
-	Circle1->dRadius = 0.1;
-	Circle1->Color = olc::RED;
+	MainCircle->dPos = { 0.5, 0.5 };
+	MainCircle->dRadius = 0.25;
+	MainCircle->dAngularSpeed = PI / 8.0;
 
-	pRoot->AddChild(Circle0);
-	Circle0->AddChild(Circle1);
+	InnerLeftCircle->dPos = { (MainCircle->dPos.x + MainCircle->dRadius), 0.5 };
+	InnerLeftCircle->dRadius = 0.1;
+	InnerLeftCircle->dAngularSpeed = PI / 16.0;
+	InnerLeftCircle->Color = olc::RED;
 
+	OuterLeftCircle->dPos = { (MainCircle->dPos.x + MainCircle->dRadius), 0.5 };
+	OuterLeftCircle->dRadius = 0.11;
+	OuterLeftCircle->dAngularSpeed = PI / 16.0;
+	OuterLeftCircle->Color = olc::RED;
+
+	InnerRightCircle->dPos = { (MainCircle->dPos.x - MainCircle->dRadius), 0.5 };
+	InnerRightCircle->dRadius = 0.1;
+	InnerRightCircle->dAngularSpeed = - PI / 16.0;
+	InnerRightCircle->Color = olc::RED;
+
+	OuterRightCircle->dPos = { (MainCircle->dPos.x - MainCircle->dRadius), 0.5 };
+	OuterRightCircle->dRadius = 0.11;
+	OuterRightCircle->dAngularSpeed = - PI / 16.0;
+	OuterRightCircle->Color = olc::RED;
+
+	BlueBall->dRadius = 0.05;
+	BlueBall->Color = olc::BLUE;
+
+	GreenBall->dRadius = 0.05;
+	GreenBall->Color = olc::GREEN;
+
+
+
+	pRoot->AddChild(MainCircle);
+	MainCircle->AddChild(InnerLeftCircle, 0.0);
+	MainCircle->AddChild(OuterLeftCircle, 0.0);
+	MainCircle->AddChild(InnerRightCircle, PI);
+	MainCircle->AddChild(OuterRightCircle, PI);
+
+	OuterLeftCircle->AddChild(BlueBall, 0.0);
+	OuterRightCircle->AddChild(GreenBall, PI);
+
+	SetDrawTarget(nullptr);
 	
 
 	return true;
@@ -101,13 +174,6 @@ bool DreamCatcher::OnUserUpdate(float fElapsedTime)
 	}*/
 
 	Clear(olc::BLACK);
-
-	pos.x = 0.5 + cos(angle) * radius;
-	pos.y = 0.5 + sin(angle) * radius;
-
-	DrawCircle((int32_t)(pos.x * GetDrawTargetWidth()), (int32_t)(pos.y * GetDrawTargetHeight()), (int32_t)(radius * GetDrawTargetWidth()), olc::GREEN);
-
-	angle += anuglarSpeed * fElapsedTime;
 
 	if (pRoot)
 	{
