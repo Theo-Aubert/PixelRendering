@@ -653,7 +653,7 @@ int main()
 {
 	srand(time(NULL));
 
-	DreamCatcher demo;
+	Universe demo;
 	//Universe demo;
 	if (demo.Construct(520, 520, 1, 1, false))
 	{

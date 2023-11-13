@@ -4112,7 +4112,10 @@ namespace olc
 
 #if defined(OLC_IMAGE_STB)
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image.h"
+#include "stb_image_write.h"
+
 namespace olc
 {
 	class ImageLoader_STB : public olc::ImageLoader
@@ -5209,7 +5212,8 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode 
+		(olc::Sprite* spr, const std::string& sImageFile) override
 		{
 			return olc::rcode::OK;
 		}
