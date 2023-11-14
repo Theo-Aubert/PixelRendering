@@ -177,3 +177,7 @@ bool TAUDoom::OnUserUpdate(float fElapsedTime)
     }
 	return true;
 }
+
+void TAUDoom::Render2DMap()
+{
+}

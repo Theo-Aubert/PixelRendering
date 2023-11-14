@@ -7,6 +7,8 @@
 #define screenHeight 480
 #define mapWidth 24
 #define mapHeight 24
+#define mapSizeX 512.
+#define mapSizeY 512.
 
 struct TAUPlayer
 {
@@ -33,8 +35,15 @@ public:
 
 private:
 
+	void Render2DMap();
+
+	void RenderDoomMap();
+
 	int m_iStripes = 64;
-	olc::vi2d m_vMapSize = { mapWidth, mapHeight };
+	olc::vi2d m_vMapSize	= { mapWidth, mapHeight};
+	olc::vd2d m_vMapDim		= { mapSizeX, mapSizeY }; //WorldUnit
+	olc::vi2d m_vMapWindow	= { 512		, 512 };
+
 	TAUPlayer player;
 
 	//Sprites 
