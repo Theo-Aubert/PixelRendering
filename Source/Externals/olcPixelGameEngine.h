@@ -5212,8 +5212,7 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
-		olc::rcode 
-		(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
 		{
 			return olc::rcode::OK;
 		}

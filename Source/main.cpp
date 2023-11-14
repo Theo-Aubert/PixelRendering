@@ -4,6 +4,7 @@
 #include "Public/SandSimulation.h"
 #include "Public/Universe.h"
 #include "Public/DreamCatcher.h"
+#include "Public/TAUDoom.h"
 #include <cmath>
 
 // Override base class with your custom functionality
@@ -653,7 +654,7 @@ int main()
 {
 	srand(time(NULL));
 
-	Universe demo;
+	TAUDoom demo;
 	//Universe demo;
 	if (demo.Construct(520, 520, 1, 1, false))
 	{
