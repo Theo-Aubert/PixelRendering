@@ -69,6 +69,12 @@ bool ImageProcessor::OnUserUpdate(float fElapsedTime)
 	return true;
 }
 
+olc::vi2d ImageProcessor::ProjectMouseOnImage()
+{
+
+	return olc::vi2d();
+}
+
 bool Box::IsInside(const olc::vd2d& point) const
 {
 
