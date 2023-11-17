@@ -5,6 +5,7 @@
 #include "Public/Universe.h"
 #include "Public/DreamCatcher.h"
 #include "Public/TAUDoom.h"
+#include "Public/ImageProcessor.h"
 #include <cmath>
 
 // Override base class with your custom functionality
@@ -650,11 +651,11 @@ public:
 	int convolutionSize = 3;
 };
 
-int main()
+int main(int argc, char* argv[])
 {
 	srand(time(NULL));
 
-	TAUDoom demo;
+	ImageProcessor demo;
 	//Universe demo;
 	if (demo.Construct(520, 520, 1, 1, false))
 	{

@@ -1,7 +1,5 @@
 #include "../Public/TAUDoom.h"
 
-#define RESSOURCE_PATH std::string(".../../Ressources/")
-
 bool TAUDoom::OnUserCreate()
 {
     //

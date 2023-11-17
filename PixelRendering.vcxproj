@@ -136,6 +136,7 @@
     <ClInclude Include="Source\Externals\stb_image_write.h" />
     <ClInclude Include="Source\Public\Constants.h" />
     <ClInclude Include="Source\Public\DreamCatcher.h" />
+    <ClInclude Include="Source\Public\ImageProcessor.h" />
     <ClInclude Include="Source\Public\SandSimulation.h" />
     <ClInclude Include="Source\Public\Shadow.h" />
     <ClInclude Include="Source\Public\TAUDoom.h" />
@@ -144,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Private\DreamCatcher.cpp" />
+    <ClCompile Include="Source\Private\ImageProcessor.cpp" />
     <ClCompile Include="Source\Private\SandSimulation.cpp" />
     <ClCompile Include="Source\Private\Shadow.cpp" />
     <ClCompile Include="Source\Private\TAUDoom.cpp" />
