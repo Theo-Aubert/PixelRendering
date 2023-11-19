@@ -10,6 +10,11 @@
 
 #define ZOOM_BOX_SIZE olc::vi2d(256,256)
 
+struct Kernel
+{
+	uint8_t uSize = 3;
+	double* matrix = nullptr;
+};
 struct Box
 {
 
@@ -37,6 +42,8 @@ public:
 private:
 
 	void EditKernelValue();
+
+	void Convolute();
 
 	olc::vi2d ProjectMouseOnImage();
 
@@ -93,5 +100,8 @@ private:
 	olc::Sprite* pOriginalSprite;
 	olc::Decal* pOriginalImage; //
 	olc::Decal* pCurrentImage; //Displayed on main viewport
+
+	//Convolution parameters;
+	Kernel kernel;
 
 };
