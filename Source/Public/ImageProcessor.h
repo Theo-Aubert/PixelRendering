@@ -43,6 +43,10 @@ private:
 
 	void EditKernelValue();
 
+	void DisplayKernel();
+
+	void Downscale(int32_t uBlockSizeX, int32_t uBlockSizeY, int32_t uBlockOffsetX, int32_t uBlockOffsetY);
+
 	void Convolute();
 
 	olc::vi2d ProjectMouseOnImage();
