@@ -84,7 +84,10 @@ bool Universe::UpdateMenu(float fElapsedTime)
 
 bool Universe::UpdateGalaxy(float fElapsedTime)
 {
-
+    //*****************************************//
+    // ---------- INPUT HANDLING --------------//
+    //*****************************************//
+    
     //Return to menu
     if (GetKey(olc::ESCAPE).bReleased)
     {
@@ -129,6 +132,24 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
         
     }
 
+    //get mouse screen pos and cast it into float for further computation (paning, zooming and so forth)
+    olc::vf2d vfMouse((float)GetMousePos().x, (float)GetMousePos().y);
+
+    if (GetMouse(olc::Mouse::RIGHT).bPressed)
+    {
+        universePan = vfMouse;
+    }
+
+    if (GetMouse(olc::Mouse::RIGHT).bHeld)
+    {
+        universeOffset -= (vfMouse - universePan);
+        universePan = vfMouse;
+    }
+
+    //********************//
+    //** DRAWING & LOGIC**//
+    //********************//
+
     Clear(olc::BLACK);
 
     uint16_t numSectorX = uNumSectorSizeX;
@@ -168,7 +189,7 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
         }
     }
 
-    if (GetMouse(olc::Mouse::LEFT).bPressed)
+    if (GetMouse(olc::Mouse::LEFT).bPressed || GetKey(olc::X).bReleased)
     {
         StarSystem star(universeMouse.x, universeMouse.y);
 
@@ -201,11 +222,11 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
         switch (currentStarVisu)
         {
         case GalaxyStarVisualization::Accurate:
-            DrawSprite(vDisplayTopLeftCorner, pAccurateDisplaySprite);
+            DrawDecal(vDisplayTopLeftCorner, pAccurateDisplayDecal);
             //DrawAccurateStarSystemVisualization(*pGazedStar);
             break;
         case GalaxyStarVisualization::Simplified:
-            DrawSprite(vDisplayTopLeftCorner, pSimplifiedDisplaySprite);
+            DrawDecal(vDisplayTopLeftCorner, pSimplifiedDisplayDecal);
             //DrawSimplifiedStarSystemVisualization(*pGazedStar);
             break;
         default:
@@ -263,62 +284,10 @@ bool Universe::UpdateStarSystem(float fElapsedTime)
         }
     }
 
-    //StarSystem star(selectedStar.x, selectedStar.y, true);
-
     if (pGazedStar->bStarExists)
     {
         DrawPlanetSystem(pGazedStar, fElapsedTime);
-        //olc::vi2d vStarPos = olc::vi2d{ ScreenWidth() / 2, ScreenHeight() / 2 };
-
-        //olc::vd2d vSystemSize   = pGazedStar->ComputeSystemSize();
-        //double dSystemLength    = pGazedStar->OuterBound();
-        //double dScalingFactor   = std::min((ScreenWidth() - 10) / (/*2.0 */ dSystemLength), (ScreenHeight() - 10) / (/*2.0 */ dSystemLength));
-
-        //FillCircle(vStarPos, (int32_t)((pGazedStar->starDiameter * dScalingFactor / 2.0) /* 1.375*/), pGazedStar->starColor);
-
-        //for (auto& planet : pGazedStar->planets)
-        //{
-        //    olc::vi2d vPlanetPos = vStarPos;
-        //    
-        //    DrawCircle(vPlanetPos   , (int32_t)(planet.distance * dScalingFactor / 2.0));
-        /*for (auto& planet : pGazedStar->planets)
-        {
-            olc::vi2d vPlanetPos = vStarPos;
-            
-            if(bShowPlanetOrbits)
-                DrawCircle(vPlanetPos   , (int32_t)(planet.distance * dScalingFactor / 2.0));*/
-
-        //    //Planet rotation
-        //    vPlanetPos.x += cos(planet.angle) * planet.distance * dScalingFactor / 2.0;
-        //    vPlanetPos.y += sin(planet.angle) * planet.distance * dScalingFactor / 2.0;
-        //    planet.angle += planet.angularSpeed * fElapsedTime;
-
-        //    FillCircle(vPlanetPos     , (int32_t)((planet.diameter * dScalingFactor / 2.0) /* 1.375*/)   , olc::PixelF((float)planet.minerals, (float)planet.foliage, (float)planet.water));
-
-        //    for (auto& moon : planet.Moons)
-        //    {
-        //        olc::vi2d vMoonPos = vPlanetPos;
-
-        //        DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
-
-        //        vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
-        //        vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;
-        //        moon.angle += moon.angularSpeed * fElapsedTime;
-                /*if(bShowMoonOrbits)
-                    DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
-
-                vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
-                vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;
-                moon.angle += moon.angularSpeed * fElapsedTime;*/
-
-        //        FillCircle(vMoonPos, (int32_t)((moon.diameter * dScalingFactor / 2.0) /* 1.375*/), olc::GREY);
-        //    }
-        //}
-
     }
-
-    
-    //DrawCircle(250, 250, 250);
     return true;
 }
 
@@ -426,6 +395,8 @@ void Universe::DrawAccurateStarSystemVisualization(const StarSystem& star)
     }
 
     SetDrawTarget(nullptr);
+
+    pAccurateDisplayDecal = new olc::Decal(pAccurateDisplaySprite);
 }
 
 void Universe::DrawSimplifiedStarSystemVisualization(const StarSystem& star)
@@ -486,6 +457,8 @@ void Universe::DrawSimplifiedStarSystemVisualization(const StarSystem& star)
     }
 
     SetDrawTarget(nullptr);
+
+    pSimplifiedDisplayDecal = new olc::Decal(pSimplifiedDisplaySprite);
 }
 
 bool Universe::DrawNormalizedString(const std::string& string, float fWidth, float fLeftSpacing, float fTopSpacing, bool bAutoCenter, const olc::Pixel& color)
@@ -516,6 +489,16 @@ bool Universe::DrawNormalizedString(const std::string& string, float fWidth, flo
         DrawString(vStringPos, string, color, uStringScale);
     }
     return true;
+}
+
+void Universe::UniverseToScreen(olc::vf2d vUniversePos, olc::vi2d& vScreenPos)
+{
+    vScreenPos = olc::vi2d(vUniversePos - universeOffset);
+}
+
+void Universe::ScreenToUniverse(olc::vi2d vScreenPos, olc::vf2d& vUniversePos)
+{
+    vUniversePos = olc::vf2d(vScreenPos + universeOffset);
 }
 
 uint32_t StarSystem::Lehmer32()

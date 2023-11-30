@@ -163,6 +163,12 @@ private :
 	// fWidth, fLeftSpacing and fTopSaping must specifies absolute screen coordinates i. e. [0.0, 1.0]. Values out this range may mess things up 
 	bool DrawNormalizedString(const std::string& string, float fWidth, float fLeftSpacing, float fTopSpacing, bool bAutoCenter = false, const olc::Pixel& color = olc::WHITE);
 
+	//Convert coordinates from universe coordinates to Screen Space
+	void UniverseToScreen(olc::vf2d vUniversePos, olc::vi2d& vScreenPos);
+
+	//Convert coordinates from screen space to universe coordinates
+	void ScreenToUniverse(olc::vi2d vScreenPos, olc::vf2d& vUniversePos);
+
 private :
 
 	StarSystem* pMenuStar = nullptr;
@@ -173,13 +179,16 @@ private :
 	//Galaxy Level variables
 	olc::Sprite* pAccurateDisplaySprite = nullptr;
 	olc::Sprite* pSimplifiedDisplaySprite = nullptr;
+	olc::Decal* pAccurateDisplayDecal = nullptr;
+	olc::Decal* pSimplifiedDisplayDecal = nullptr;
 
 	olc::vi2d vDisplayTopLeftCorner;
 
 	uint8_t sectorSize = 16;
 	uint16_t uNumSectorSizeX = 64;
 
-	olc::vf2d universeOffset = { 0,0 };
+	olc::vf2d universeOffset	= { 0.f ,0.f };
+	olc::vf2d universePan		= { 0.f, 0.f };
 
 	bool bStarSelected	 = false;
 	bool bPlanetSelected = false;
