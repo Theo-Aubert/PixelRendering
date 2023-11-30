@@ -655,8 +655,8 @@ int main(int argc, char* argv[])
 {
 	srand(time(NULL));
 
-	ImageProcessor demo;
-	//Universe demo;
+	//ImageProcessor demo;
+	Universe demo;
 	if (demo.Construct(520, 520, 1, 1, false))
 	{
 		demo.Start();
