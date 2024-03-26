@@ -45,9 +45,24 @@ private:
 
 	void DisplayKernel();
 
+	/*---------------------------*/
+	/*	Processing utilities     */	
+	/*---------------------------*/
+
+
+	//Downscale using all pixels of a chunk to compute the new value
+	void Downscale(int32_t uBlockSizeX, int32_t uBlockSizeY);
+
+	//Downscale sampling one pixel for each chunk 
 	void Downscale(int32_t uBlockSizeX, int32_t uBlockSizeY, int32_t uBlockOffsetX, int32_t uBlockOffsetY);
 
 	void Convolute();
+
+	float FBM(const olc::vd2d& px, uint8_t uNumOctaves, float h, std::function<float(const olc::vi2d& px)> funcNoise);
+
+	olc::vd2d hash(const olc::vd2d& px);
+
+	float GradientNoise2D(const olc::vd2d& px, olc::vd2d& outVDerivatives);
 
 	olc::vi2d ProjectMouseOnImage();
 

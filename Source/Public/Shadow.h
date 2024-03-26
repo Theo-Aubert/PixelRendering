@@ -35,7 +35,7 @@ private :
 
 	void DrawFrustum();
 
-	olc::vi2d LineTrace(olc::vi2d& startPoint, olc::vf2d& dir);
+	olc::vi2d LineTrace(const olc::vi2d& startPoint, olc::vf2d& dir) const;
 
 	bool IsRayIntersectingMirror(const olc::vf2d& rayStart, const olc::vf2d& rayDir, const Mirror& mirror, olc::vf2d& intersection, olc::vf2d& bounceDir);
 private:

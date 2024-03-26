@@ -100,10 +100,10 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
         srand((unsigned int)time(NULL));
         seed = rand();
     }
-    if (GetKey(olc::Z).bHeld) universeOffset.y -= uNumSectorSizeX * fElapsedTime;
-    if (GetKey(olc::S).bHeld) universeOffset.y += uNumSectorSizeX * fElapsedTime;
-    if (GetKey(olc::Q).bHeld) universeOffset.x -= uNumSectorSizeX * fElapsedTime;
-    if (GetKey(olc::D).bHeld) universeOffset.x += uNumSectorSizeX * fElapsedTime;
+    if (GetKey(olc::Z).bHeld) universeOffset.y -= 50.f * (uNumSectorSizeX / 4.f) * fElapsedTime;
+    if (GetKey(olc::S).bHeld) universeOffset.y += 50.f * (uNumSectorSizeX / 4.f)* fElapsedTime;
+    if (GetKey(olc::Q).bHeld) universeOffset.x -= 50.f * (uNumSectorSizeX / 4.f)* fElapsedTime;
+    if (GetKey(olc::D).bHeld) universeOffset.x += 50.f *( uNumSectorSizeX / 4.f)* fElapsedTime;
 
     if (GetKey(olc::NP1).bReleased && bStarSelected) currentStarVisu = GalaxyStarVisualization::Accurate;
     if (GetKey(olc::NP2).bReleased && bStarSelected) currentStarVisu = GalaxyStarVisualization::Simplified;
@@ -133,7 +133,7 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
     }
 
     //get mouse screen pos and cast it into float for further computation (paning, zooming and so forth)
-    olc::vf2d vfMouse((float)GetMousePos().x, (float)GetMousePos().y);
+    olc::vf2d vfMouse(GetMousePos().x, GetMousePos().y);
 
     if (GetMouse(olc::Mouse::RIGHT).bPressed)
     {
@@ -189,7 +189,7 @@ bool Universe::UpdateGalaxy(float fElapsedTime)
         }
     }
 
-    if (GetMouse(olc::Mouse::LEFT).bPressed || GetKey(olc::X).bReleased)
+    if (GetMouse(olc::Mouse::LEFT).bReleased || GetKey(olc::X).bReleased)
     {
         StarSystem star(universeMouse.x, universeMouse.y);
 
@@ -312,7 +312,8 @@ void Universe::DrawPlanetSystem(StarSystem* pStar, float fElapsedTime)
     {
         olc::vi2d vPlanetPos = vStarPos;
 
-        DrawCircle(vPlanetPos, (int32_t)(planet.distance * dScalingFactor / 2.0));
+        if(bShowPlanetOrbits)
+            DrawCircle(vPlanetPos, (int32_t)(planet.distance * dScalingFactor / 2.0));
 
         //Planet rotation
         vPlanetPos.x += cos(planet.angle) * planet.distance * dScalingFactor / 2.0;
@@ -325,7 +326,8 @@ void Universe::DrawPlanetSystem(StarSystem* pStar, float fElapsedTime)
         {
             olc::vi2d vMoonPos = vPlanetPos;
 
-            DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
+            if(bShowMoonOrbits)
+                DrawCircle(vMoonPos, (int32_t)(moon.distance * dScalingFactor / 2.0));
 
             vMoonPos.x += cos(moon.angle) * moon.distance * dScalingFactor / 2.0;
             vMoonPos.y += sin(moon.angle) * moon.distance * dScalingFactor / 2.0;

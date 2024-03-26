@@ -174,9 +174,8 @@ void Shadow::DrawFrustum()
 	DrawLine(player.position, LineTrace(player.position, lowerBound));
 }
 
-olc::vi2d Shadow::LineTrace(olc::vi2d& startPoint, olc::vf2d& dir)
+olc::vi2d Shadow::LineTrace(const olc::vi2d& startPoint, olc::vf2d& dir) const
 {
-	olc::vi2d result = startPoint;
 	olc::vf2d compute = startPoint;
 
 	bool bHit = false;
@@ -184,7 +183,7 @@ olc::vi2d Shadow::LineTrace(olc::vi2d& startPoint, olc::vf2d& dir)
 	while (!bHit)
 	{
 		compute += dir;
-		bHit = compute.x < 0 || compute.x > ScreenWidth() - 1 || compute.y < 0 || compute.y > ScreenHeight() - 1 ||
+		bHit = compute.x < 0 || compute.x > ScreenWidth() - 1. || compute.y < 0 || compute.y > ScreenHeight() - 1. ||
 			spriteMap->GetPixel(compute) == olc::WHITE;
 	}   
 
@@ -202,7 +201,7 @@ bool Shadow::IsRayIntersectingMirror(const olc::vf2d& rayStart, const olc::vf2d&
 	olc::vf2d upperCone = mirror.start - rayStart;
 	olc::vf2d lowerCone = mirror.end - rayStart;
 
-	//computedirector vector for the mirror
+	//compute director vector for the mirror
 	olc::vf2d mirrorVec = (mirror.end - mirror.start);
 
 	//Normalize

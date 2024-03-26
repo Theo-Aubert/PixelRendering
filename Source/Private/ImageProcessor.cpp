@@ -2,7 +2,7 @@
 
 bool ImageProcessor::OnUserCreate()
 {
-	pOriginalSprite	= new olc::Sprite(RESSOURCE_PATH + "91-3.jpg");	
+	pOriginalSprite	= new olc::Sprite(RESSOURCE_PATH + "ile-des-morts.jpg");	
 	pOriginalImage	= new olc::Decal(pOriginalSprite);
 	pCurrentImage = pOriginalImage;
 
@@ -104,14 +104,30 @@ void ImageProcessor::DisplayKernel()
 	olc::vi2d vKernelBoxUpLeft = { int(KERNEL_VIEWPORT.A.x * ScreenWidth()), int(KERNEL_VIEWPORT.A.y * ScreenHeight()) };
 	olc::vi2d vSingleValueBoxSize = { int((KERNEL_VIEWPORT.B.x - KERNEL_VIEWPORT.A.x) * ScreenWidth() / kernel.uSize),  int((KERNEL_VIEWPORT.B.y - KERNEL_VIEWPORT.A.y) * ScreenHeight() / kernel.uSize) };
 	
+	size_t maxSize = 0;
+	std::vector<std::string> vStrings(kernel.uSize * kernel.uSize, std::string("0"));
+
 	for (uint8_t kx = 0; kx < kernel.uSize; kx++)
 	{
 		for(uint8_t ky = 0; ky < kernel.uSize; ky++)
 		{
-			//DrawString(vKernelBoxUpLeft + olc::vi2d((kx + 0.5) * vSingleValueBoxSize.x, (ky + 0.5) * vSingleValueBoxSize.y), std::to_string(1 /*kernel.matrix[ky * kernel.uSize + kx]*/));
-			DrawStringDecal(vKernelBoxUpLeft + olc::vi2d((kx + 0.5) * vSingleValueBoxSize.x, (ky + 0.5) * vSingleValueBoxSize.y), std::to_string(1 /*kernel.matrix[ky * kernel.uSize + kx]*/), olc::WHITE, olc::vf2d{.5f,.5f});
+			std::stringstream strFinal;
+			strFinal << std::setprecision(3) << kernel.matrix[ky * kernel.uSize + kx];
+			maxSize = strFinal.str().size() >= maxSize ? strFinal.str().size() : maxSize;
+			vStrings[kx + kernel.uSize * ky] = strFinal.str();
 		}
 
+	}
+
+	for (uint8_t kx = 0; kx < kernel.uSize; kx++)
+	{
+		for (uint8_t ky = 0; ky < kernel.uSize; ky++)
+		{
+			
+			std::string strTemp = vStrings[kx + kernel.uSize * ky];
+			double xBoxOffset = 0.5 - ((strTemp.size() - 1) / 4.) * .4;
+			DrawStringDecal(vKernelBoxUpLeft + olc::vi2d((kx + xBoxOffset) * vSingleValueBoxSize.x, (ky + 0.5) * vSingleValueBoxSize.y), strTemp, olc::WHITE);// , olc::vf2d{.5f, .5f});
+		}
 	}
 
 	for (uint8_t lx = 1; lx < kernel.uSize; lx++)
@@ -123,6 +139,36 @@ void ImageProcessor::DisplayKernel()
 	{
 		DrawLine(olc::vi2d(int(KERNEL_VIEWPORT.A.x * ScreenWidth()), int(KERNEL_VIEWPORT.A.y * ScreenHeight()) + ly * vSingleValueBoxSize.y), olc::vi2d(int(KERNEL_VIEWPORT.B.x * ScreenWidth()), int(KERNEL_VIEWPORT.A.y * ScreenHeight()) + ly * vSingleValueBoxSize.y));
 	}
+}
+
+void ImageProcessor::Downscale(int32_t uBlockSizeX, int32_t uBlockSizeY)
+{
+	int32_t blockSizeX = std::max(1, std::min(pOriginalImage->sprite->width, uBlockSizeX));
+	int32_t blockSizeY = std::max(1, std::min(pOriginalImage->sprite->height, uBlockSizeY));
+
+	olc::Sprite* newImageSprite = new olc::Sprite(pOriginalImage->sprite->width / blockSizeX, pOriginalImage->sprite->height / blockSizeY);
+
+	for (int x = 0; x < newImageSprite->width; x++)
+	{
+		for (int y = 0; y < newImageSprite->height; y++)
+		{
+			//Block Sum
+			double sum[3] = { 0., 0., 0. };
+			for (int dx = 0; dx < blockSizeX; dx++)
+				for (int dy = 0; dy < blockSizeY; dy++)
+				{
+					int X = x * blockSizeX + dx;
+					int Y = y * blockSizeY + dy;
+
+					sum[0] += pOriginalSprite->GetPixel(X, Y).r;
+					sum[1] += pOriginalSprite->GetPixel(X, Y).g;
+					sum[2] += pOriginalSprite->GetPixel(X, Y).b;
+				}
+			newImageSprite->SetPixel(x, y, olc::Pixel(sum[0] / (blockSizeY * blockSizeY), sum[1] / (blockSizeY * blockSizeY), sum[2] / (blockSizeY * blockSizeY)));
+		}
+	}
+
+	pCurrentImage = new olc::Decal(newImageSprite);
 }
 
 void ImageProcessor::Downscale(int32_t uBlockSizeX, int32_t uBlockSizeY, int32_t uBlockOffsetX, int32_t uBlockOffsetY)
@@ -139,20 +185,7 @@ void ImageProcessor::Downscale(int32_t uBlockSizeX, int32_t uBlockSizeY, int32_t
 	{
 		for (int y = 0 ; y < newImageSprite->height; y++)
 		{
-			//Block Sum
-			double sum[3] = { 0., 0., 0. };
-			for(int dx = 0; dx < blockSizeX; dx++)
-				for (int dy = 0; dy < blockSizeY; dy++)
-				{
-					int X = x * blockSizeX + dx;
-					int Y = y * blockSizeY + dy;
-
-					sum[0] += pOriginalSprite->GetPixel(X, Y).r;
-					sum[1] += pOriginalSprite->GetPixel(X, Y).g;
-					sum[2] += pOriginalSprite->GetPixel(X, Y).b;
-				}
-			newImageSprite->SetPixel(x, y, olc::Pixel(sum[0] / (blockSizeY * blockSizeY), sum[1] / (blockSizeY * blockSizeY), sum[2] / (blockSizeY * blockSizeY)));
-			//newImageSprite->SetPixel(x, y, pOriginalSprite->GetPixel(x * blockSizeX + blockOffsetX, y * blockSizeY + blockOffsetY));
+			newImageSprite->SetPixel(x, y, pOriginalSprite->GetPixel(x * blockSizeX + blockOffsetX, y * blockSizeY + blockOffsetY));
 		}
 	}
 
@@ -193,6 +226,66 @@ void ImageProcessor::Convolute()
 	pCurrentImage = new olc::Decal(newImageSprite);
 
 }
+
+float ImageProcessor::FBM(const olc::vd2d& px, uint8_t uNumOctaves, float h, std::function<float(const olc::vi2d& px)> funcNoise)
+{
+	float G = exp2(-h);
+	float f = 1.0;
+	float a = 1.0;
+	float t = 0.0;
+	for (int i = 0; i < uNumOctaves; i++)
+	{
+		t += a * funcNoise(f * px);
+		f *= 2.0;
+		a *= G;
+	}
+	return t;
+}
+
+olc::vd2d ImageProcessor::hash(const olc::vd2d& px)
+{
+	const olc::vd2d k = olc::vd2d(0.3183099, 0.3678794);
+	olc::vd2d x = px;
+	x = x * k + olc::vd2d(k.y, k.x);
+
+	olc::vd2d vTemp;
+	std::modf(x.x * x.y * (x.x + x.y), &vTemp.x);
+	std::modf(x.x * x.y * (x.x + x.y), &vTemp.y);
+
+	std::modf(16.0 * k.x * vTemp.x, &vTemp.x);
+	std::modf(16.0 * k.y * vTemp.y, &vTemp.y);
+
+	return { -1.0 + 2.0 * k.x, -1.0 + 2.0 * k.y };
+}
+
+float ImageProcessor::GradientNoise2D(const olc::vd2d& px, olc::vd2d& outVDerivatives)
+{
+	olc::vd2d i(std::floor(px.x), std::floor(px.y));
+	olc::vd2d f;
+	std::modf(px.x, &f.x);
+	std::modf(px.y, &f.y);
+
+	olc::vd2d u = f * f * f * (f * (f * 6.0 - olc::vd2d(15.0, 15.0)) + olc::vd2d(10.0, 10.0));
+	olc::vd2d du = 30.0 * f * f * (f * (f - olc::vd2d(2.0,2.0)) + olc::vd2d(1.0,1.0));
+
+	olc::vd2d ga = hash(i + olc::vd2d(0.0, 0.0));
+	olc::vd2d gb = hash(i + olc::vd2d(1.0, 0.0));
+	olc::vd2d gc = hash(i + olc::vd2d(0.0, 1.0));
+	olc::vd2d gd = hash(i + olc::vd2d(1.0, 1.0));
+
+	float va = ga.dot(f - olc::vd2d(0.0, 0.0));
+	float vb = gb.dot(f - olc::vd2d(1.0, 0.0));
+	float vc = gc.dot(f - olc::vd2d(0.0, 1.0));
+	float vd = gd.dot(f - olc::vd2d(1.0, 1.0));
+
+	outVDerivatives = ga + u.x * (gb - ga) + u.y * (gc - ga) + u.x * u.y * (ga - gb - gc + gd) +
+		du * (olc::vd2d(u.y, u.x) * (va - vb - vc + vd) + olc::vd2d(vb, vc) - olc::vd2d(va, va));
+
+	float result = va + u.x * (vb - va) + u.y * (vc - va) + u.x * u.y * (va - vb - vc + vd);
+	return result;
+}
+
+
 
 olc::vi2d ImageProcessor::ProjectMouseOnImage()
 {
