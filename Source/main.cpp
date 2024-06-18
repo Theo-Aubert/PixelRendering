@@ -6,6 +6,7 @@
 #include "Public/DreamCatcher.h"
 #include "Public/TAUDoom.h"
 #include "Public/ImageProcessor.h"
+#include "Public/WaveFC.h"
 #include <cmath>
 
 // Override base class with your custom functionality
@@ -419,7 +420,7 @@ public:
 
 		int nbBounces = 10;
 		float size = 15.f;
-		float bounciness = 1.5f; //[0,1]
+		float bounciness = 0.7f; //[0,1]
 		
 	};
 
@@ -446,14 +447,14 @@ public:
 
 		for (auto it = bouncers.begin(); it < bouncers.end(); it++)
 		{
-
+			if ((*it).nbBounces < 0)
+			{
+				continue;
+			}
 			DrawCircle(olc::vi2d((*it).position), int32_t((*it).size), (*it).color);
 
 			UpdatePhysics((*it), fElapsedTime);
-			if ((*it).nbBounces < 0)
-			{
-				bouncers.erase(it);
-			}
+			
 		}
 
 		return true;
@@ -656,8 +657,9 @@ int main(int argc, char* argv[])
 	srand(time(NULL));
 
 	//ImageProcessor demo;
-	Universe demo;
-	if (demo.Construct(520, 520, 1, 1, false))
+	WaveFC demo;
+	//SandSimulation demo;
+	if (demo.Construct(1040, 1040, 1, 1, false))
 	{
 		demo.Start();
 		//demo.olc_UpdateMouseFocus(true);
