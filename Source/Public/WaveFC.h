@@ -68,10 +68,14 @@ public:
 
 	int m_iTileSize = 27;				//pixel size of a tile
 	olc::vi2d m_vGridSize = { 16, 16 };	//number of tiles per row and per column
-	std::vector < std::vector<std::set<SimpleTile>>> m_vModuleGrid; //inner representation of our grid
+	std::vector < std::vector<std::set<SimpleTile*>>> m_vModuleGrid;  //inner representation of our grid
 
 private:
 
+	void InitGrid();
+	bool IsTileCollapsed(olc::vi2d& coord);
+	bool IsTileCollapsed(int x, int y);
+	
 	void DrawEmptyGrid();
 
 	void DrawModules();

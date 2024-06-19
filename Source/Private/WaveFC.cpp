@@ -75,8 +75,8 @@ bool WaveFC::OnUserCreate()
 	CRightUp.m_pSprite = new olc::Sprite(RESSOURCE_PATH_TILES + "/CRightUp.png");
 	CRightUp.m_pDecal = new olc::Decal(CRightUp.m_pSprite);
 	CRightUp.m_connexMap.emplace(EConnect::North, EMaterial::Road);
-	CRightUp.m_connexMap.emplace(EConnect::South, EMaterial::Road);
-	CRightUp.m_connexMap.emplace(EConnect::East, EMaterial::Grass);
+	CRightUp.m_connexMap.emplace(EConnect::South, EMaterial::Grass);
+	CRightUp.m_connexMap.emplace(EConnect::East, EMaterial::Road);
 	CRightUp.m_connexMap.emplace(EConnect::West, EMaterial::Grass);
 
 	CLeftDown.m_pSprite = new olc::Sprite(RESSOURCE_PATH_TILES + "/CLeftDown.png");
@@ -104,6 +104,59 @@ bool WaveFC::OnUserUpdate(float fElapsedTime)
 	DrawModules();
 
 	return true;
+}
+
+void WaveFC::InitGrid()
+{
+	std::set<SimpleTile*> tilesSet
+	{
+		&Cross,
+		&Empty,
+		&LHorizontal,
+		&LVertical,
+		&TUp,
+		&TDown,
+		&TRight,
+		&TLeft,
+		&CLeftDown,
+		&CLeftUp,
+		&CRightDown,
+		&CRightUp
+	};
+
+	m_vModuleGrid.reserve(m_vGridSize.x);
+	for(int i = 0; i < m_vGridSize.x; ++i)
+	{
+		std::vector<std::set<SimpleTile*>> vLine;
+		vLine.reserve((m_vGridSize.y));
+		for(int j = 0; i < m_vGridSize.y; ++i)
+		{
+			 
+			vLine.emplace_back(tilesSet);
+		}
+		m_vModuleGrid.emplace_back(vLine);
+	}
+}
+
+bool WaveFC::IsTileCollapsed(olc::vi2d& coord)
+{
+
+	if(coord.x < 0 || coord.x >= m_vGridSize.x || coord.y < 0 || coord.y >= m_vGridSize.y)
+	{
+		return true;
+	}
+	
+	return m_vModuleGrid[coord.x][coord.y].size() == 1; 
+}
+
+bool WaveFC::IsTileCollapsed(int x, int y)
+{
+	if(x < 0 || x >= m_vGridSize.x || y < 0 || y >= m_vGridSize.y)
+	{
+		return true;
+	}
+	
+	return m_vModuleGrid[x][y].size() == 1;
 }
 
 void WaveFC::DrawEmptyGrid()
