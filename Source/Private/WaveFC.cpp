@@ -138,22 +138,66 @@ void WaveFC::InitGrid()
 	}
 }
 
-bool WaveFC::IsTileCollapsed(olc::vi2d& coord)
+bool WaveFC::AreCoordInBounds(const olc::vi2d& coord)
+{
+	return AreCoordInBounds(coord.x, coord.y);
+}
+
+bool WaveFC::AreCoordInBounds(int x, int y)
+{
+	return (x < 0 || x >= m_vGridSize.x || y < 0 || y >= m_vGridSize.y);
+}
+
+size_t WaveFC::GetEntropy(const olc::vi2d& coord)
+{
+	return GetEntropy(coord.x, coord.y);
+}
+
+size_t WaveFC::GetEntropy(int x, int y)
+{
+	if(!AreCoordInBounds(x,y))
+	{
+		return 0; //Specific value for OOB request. Minimum value for valid coordinates is 1.
+	}
+
+	return m_vModuleGrid[x][y].size();
+}
+
+void WaveFC::Propagate(const olc::vi2d& coord)
+{
+	Propagate(coord.x, coord.y);
+}
+
+void WaveFC::Propagate(int x, int y)
+{
+	//If not collapsed or out of bounds, ignore 
+	if(!IsTileCollapsed(x,y))
+	{
+		return;
+	}
+
+	SimpleTile* pCollapsedTile = *m_vModuleGrid[x][y].begin();
+
+	//Iterate through North/South/West/East neighbours
+	int n_x = x;
+	int n_y = y;
+
+	//North
+	n_y += 1;
+	
+}
+
+bool WaveFC::IsTileCollapsed(const olc::vi2d& coord)
 {
 
-	if(coord.x < 0 || coord.x >= m_vGridSize.x || coord.y < 0 || coord.y >= m_vGridSize.y)
-	{
-		return true;
-	}
-	
-	return m_vModuleGrid[coord.x][coord.y].size() == 1; 
+	return IsTileCollapsed(coord.x, coord.y);
 }
 
 bool WaveFC::IsTileCollapsed(int x, int y)
 {
 	if(x < 0 || x >= m_vGridSize.x || y < 0 || y >= m_vGridSize.y)
 	{
-		return true;
+		return false; //convenience to return false here so we do not perform OOB test twice
 	}
 	
 	return m_vModuleGrid[x][y].size() == 1;

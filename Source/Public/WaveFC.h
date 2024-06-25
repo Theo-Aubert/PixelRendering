@@ -73,7 +73,17 @@ public:
 private:
 
 	void InitGrid();
-	bool IsTileCollapsed(olc::vi2d& coord);
+
+	bool AreCoordInBounds(const olc::vi2d& coord);
+	bool AreCoordInBounds(int x, int y);
+
+	size_t GetEntropy(const olc::vi2d& coord);
+	size_t GetEntropy(int x, int y);
+	
+	void Propagate(const olc::vi2d& coord);
+	void Propagate(int x, int y);
+	
+	bool IsTileCollapsed(const olc::vi2d& coord);
 	bool IsTileCollapsed(int x, int y);
 	
 	void DrawEmptyGrid();
