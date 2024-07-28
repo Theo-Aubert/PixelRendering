@@ -7,6 +7,7 @@
 #include "Public/TAUDoom.h"
 #include "Public/ImageProcessor.h"
 #include "Public/WaveFC.h"
+#include "Public/ProceduralAnim.h"
 #include <cmath>
 
 // Override base class with your custom functionality
@@ -657,8 +658,9 @@ int main(int argc, char* argv[])
 	srand(time(NULL));
 
 	//ImageProcessor demo;
-	WaveFC demo;
+	//WaveFC demo;
 	//SandSimulation demo;
+	ProceduralAnim demo;
 	if (demo.Construct(1040, 1040, 1, 1, false))
 	{
 		demo.Start();
