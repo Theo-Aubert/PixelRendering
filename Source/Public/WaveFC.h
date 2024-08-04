@@ -4,15 +4,17 @@
 
 #include "../Externals/olcPixelGameEngine.h"
 #include <set>
+#include <random>
+#include <algorithm>
 
 #define RESSOURCE_PATH_TILES std::string(".../../Ressources/WFCTiles/")
 
 enum  EConnect : uint8_t
 {
-	North	= 0,
-	South	= 1,
-	West	= 2,
-	East	= 3	
+	North	= 0x0F,
+	South	= ~North,
+	West	= 0x55,
+	East	= ~West	
 };
 
 
@@ -49,6 +51,15 @@ static SimpleTile CLeftDown;
 static SimpleTile CRightUp;
 static SimpleTile CRightDown;
 
+//std::map < SimpleTile*, std::map<EConnect, std::set<SimpleTile*>>> AcceptanceMap =
+//{
+//	std::make_pair(&Cross, std::map(std::make_pair(North, std::set({&Cross, &LVertical, &TDown, &CLeftDown, &CRightDown })),
+//								std::make_pair(North, std::set({&Cross, &LVertical, &TDown, &CLeftDown, &CRightDown })))
+//	)
+//	
+//}
+
+
 class WaveFC : public olc::PixelGameEngine
 {
 
@@ -74,12 +85,18 @@ private:
 
 	void InitGrid();
 
+	template<typename S>
+	auto SelectRandom(const S& s, size_t n);
+
 	bool AreCoordInBounds(const olc::vi2d& coord);
 	bool AreCoordInBounds(int x, int y);
 
 	size_t GetEntropy(const olc::vi2d& coord);
 	size_t GetEntropy(int x, int y);
 	
+	bool CollapseTile(const olc::vi2d& coord);
+	bool CollapseTile(int x, int y);
+
 	void Propagate(const olc::vi2d& coord);
 	void Propagate(int x, int y);
 	
@@ -94,3 +111,12 @@ private:
 
 
 };
+
+
+template<typename S>
+inline auto WaveFC::SelectRandom(const S& s, size_t n)
+{
+	auto it = std::begin(s);
+	std::advance(it, n);
+	return it;
+}

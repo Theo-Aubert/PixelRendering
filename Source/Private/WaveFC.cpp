@@ -93,6 +93,7 @@ bool WaveFC::OnUserCreate()
 	CRightDown.m_connexMap.emplace(EConnect::East, EMaterial::Road);
 	CRightDown.m_connexMap.emplace(EConnect::West, EMaterial::Grass);
 
+	std::srand(std::time(nullptr));
 	return true;
 }
 
@@ -163,6 +164,31 @@ size_t WaveFC::GetEntropy(int x, int y)
 	return m_vModuleGrid[x][y].size();
 }
 
+bool WaveFC::CollapseTile(const olc::vi2d& coord)
+{
+	return CollapseTile(coord.x, coord.y);
+}
+
+bool WaveFC::CollapseTile(int x, int y)
+{
+	if (!AreCoordInBounds(x, y))
+	{
+		return false;
+	}
+
+	if (!IsTileCollapsed(x, y))
+	{
+		auto r = std::rand() % m_vModuleGrid[x][y].size();
+		SimpleTile* pCollapsedTile = *SelectRandom(m_vModuleGrid[x][y], r);
+		m_vModuleGrid[x][y].clear();
+		m_vModuleGrid[x][y].insert(pCollapsedTile);
+	}
+
+	Propagate(x, y);
+	
+
+}
+
 void WaveFC::Propagate(const olc::vi2d& coord)
 {
 	Propagate(coord.x, coord.y);
@@ -176,14 +202,53 @@ void WaveFC::Propagate(int x, int y)
 		return;
 	}
 
+	//get the one and only tile available
 	SimpleTile* pCollapsedTile = *m_vModuleGrid[x][y].begin();
 
-	//Iterate through North/South/West/East neighbours
+	if (!pCollapsedTile)
+	{
+		return; //Should never happen
+	}
+
+	//Iterate through North/South/West/East neighbours and reduce configuration numbers
 	int n_x = x;
 	int n_y = y;
 
+	auto reduce = [](SimpleTile* pTile, EConnect eDir, std::set<SimpleTile*>& setToReduce)
+		{
+			std::vector<SimpleTile*> arrToRemove;
+
+			for (auto const& tile : setToReduce)
+			{
+				if (pTile->m_connexMap[eDir] != tile->m_connexMap[~eDir])
+				{
+					arrToRemove.push_back(tile);
+				}
+			}
+
+			for (auto const& tileToRemove : arrToRemove)
+			{
+				setToReduce.erase(tileToRemove);
+			}
+		};
+
+	//Raw iteration throug neighbors here, a smart loop would be accurate for generalization purposes
+
 	//North
-	n_y += 1;
+	if(AreCoordInBounds(x, y + 1))
+		reduce(pCollapsedTile, North, m_vModuleGrid[x][y + 1]);
+
+	//South
+	if (AreCoordInBounds(x, y - 1))
+		reduce(pCollapsedTile, South, m_vModuleGrid[x][y - 1]);
+
+	//West
+	if (AreCoordInBounds(x - 1, y))
+		reduce(pCollapsedTile, West, m_vModuleGrid[x - 1][y]);
+
+	//East
+	if (AreCoordInBounds(x + 1, y))
+		reduce(pCollapsedTile, North, m_vModuleGrid[x + 1][y]);
 	
 }
 

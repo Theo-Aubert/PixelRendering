@@ -143,6 +143,7 @@
     <ClInclude Include="Source\Public\Universe.h" />
     <ClInclude Include="Source\Public\WaveFC.h" />
     <ClInclude Include="Source\Public\ProceduralAnim.h" />
+    <ClInclude Include="Source\Public\YamScoreBoard.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="Source\Private\Universe.cpp" />
     <ClCompile Include="Source\Private\WaveFC.cpp" />
     <ClCompile Include="Source\Private\ProceduralAnim.cpp" />
+    <ClCompile Include="Source\Private\YamScoreBoard.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,6 +8,7 @@
 #include "Public/ImageProcessor.h"
 #include "Public/WaveFC.h"
 #include "Public/ProceduralAnim.h"
+#include "Public/YamScoreBoard.h"
 #include <cmath>
 
 // Override base class with your custom functionality
@@ -660,8 +661,9 @@ int main(int argc, char* argv[])
 	//ImageProcessor demo;
 	//WaveFC demo;
 	//SandSimulation demo;
-	ProceduralAnim demo;
-	if (demo.Construct(1040, 1040, 1, 1, false))
+	//ProceduralAnim demo;
+	YamScoreBoard demo;
+	if (demo.Construct(1920, 1080, 1, 1, false))
 	{
 		demo.Start();
 		//demo.olc_UpdateMouseFocus(true);
