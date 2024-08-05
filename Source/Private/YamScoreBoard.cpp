@@ -2,7 +2,7 @@
 
 void Player::InitScoreState()
 {
-	m_mapScoreSate.empty();
+	m_mapScoreSate.clear();
 
 	for (uint8_t e = EValues::As; e != EValues::Name; e++)
 	{
@@ -11,8 +11,58 @@ void Player::InitScoreState()
 
 }
 
+size_t YamScoreBoard::GameState::AddPlayer()
+{
+	if(arrPlayers.size() < NUM_MAX_PLAYERS)
+	{
+		arrPlayers.emplace_back(std::make_shared<Player>());
+	}
+
+	return GetNumPlayers();
+}
+
+size_t YamScoreBoard::GameState::RemovePlayer()
+{
+	if(arrPlayers.size() >= 2)
+	{
+		arrPlayers.pop_back();
+	}
+
+	return GetNumPlayers();
+}
+
+uint8_t YamScoreBoard::GameState::IncrNumRounds()
+{
+	if(iNumRounds < NUM_ROUND_MAX)
+	{
+		iNumRounds++;
+	}
+
+	return iNumRounds;
+}
+
+uint8_t YamScoreBoard::GameState::DecrNumRounds()
+{
+	if(iNumRounds > 1)
+	{
+		iNumRounds--;
+	}
+
+	return iNumRounds;
+}
+
 bool YamScoreBoard::OnUserCreate()
 {
+	//First player is always here
+
+	for(int i = 0; i < 10; ++i)
+	{
+		m_GameState.AddPlayer();
+	}
+	
+	m_RenderState.vSetUpFrameAnchor = olc::vi2d(ScreenWidth()* vFrameAnchorPercentage.x, ScreenHeight()* vFrameAnchorPercentage.y);
+	m_RenderState.vSetUpFrameSize = olc::vi2d(ScreenWidth() * vFrameSizePercentage.x, ScreenHeight()* vFrameSizePercentage.y);
+	
 	for (uint8_t p = 0 ; p < m_iNumPlayers; ++p)
 	{
 		auto player = std::make_shared<Player>();
@@ -32,17 +82,42 @@ bool YamScoreBoard::OnUserCreate()
 bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 {
 
+	if(GetKey(olc::ESCAPE).bReleased )
+	{
+		return false;
+	}
+
+	switch (m_GameState.eCurrentPhase)
+	{
+	case SetUp:
+		DrawSetUpPhase(fElapsedTime);
+		return true;
+		break;
+	default:
+		break;
+	}
+	
 	Clear(olc::VERY_DARK_BLUE);
 
-	if (GetKey(olc::R).bReleased)
+	//Shortcuts (avoid conflict when typing
+	if(!IsTextEntryEnabled())
 	{
-		for (uint8_t iPlayers = 0; iPlayers < m_iNumPlayers; ++iPlayers)
+		if (GetKey(olc::R).bReleased)
 		{
+			for (uint8_t iPlayers = 0; iPlayers < m_iNumPlayers; ++iPlayers)
+			{
 
-			m_arrPlayers[iPlayers]->InitScoreState();
-		}
+				m_arrPlayers[iPlayers]->InitScoreState();
+			}
 		
+		}
+
+		if(GetKey(olc::T).bReleased)
+		{
+			m_RenderState.bShowTotals = !m_RenderState.bShowTotals;
+		}
 	}
+	
 
 	olc::vi2d vAnchor = olc::vi2d(ScreenWidth() / 4, ScreenHeight() / 4);
 	DrawScoreColumn(vAnchor);
@@ -69,7 +144,7 @@ bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 			if (GetMouse(0).bReleased)
 			{
 				TextEntryEnable(true);
-				vEntryAnchor = olc::vi2d(vPlayerAnchor.x + LiteralOffset, iTempY + ScoreValueHeight * .3);
+				vEntryAnchor = olc::vi2d(vPlayerAnchor.x + LiteralOffset.x, iTempY + ScoreValueHeight * .3);
 				m_pCurrentWritingPlayer = m_arrPlayers[iPlayers];
 
 				if (row == 0)
@@ -115,6 +190,65 @@ void YamScoreBoard::OnTextEntryComplete(const std::string& strText)
 	}
 }
 
+void YamScoreBoard::DrawSetUpPhase(float fElapsedTime)
+{
+	Clear(olc::VERY_DARK_BLUE);
+
+	
+	DrawRect(m_RenderState.vSetUpFrameAnchor, m_RenderState.vSetUpFrameSize);
+
+	std::string strNumPlayersTittle(NUM_PLAYERS_TITTLE_TEXT);
+	olc::vi2d vTittleSize = GetTextSize(strNumPlayersTittle) * NUM_PLAYERS_TITTLE_SIZE;
+	DrawString(olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /2), ScreenHeight() /4 + 25), strNumPlayersTittle, olc::WHITE, NUM_PLAYERS_TITTLE_SIZE);
+
+	//Left Triangle
+	
+	olc::vi2d vLeftT1 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4), (ScreenHeight() /4) + 25+ vTittleSize.y * 1.5 + 25);
+	olc::vi2d vLeftT2 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4), (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 55);
+	olc::vi2d vLeftT3 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4) - 25, (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 40);
+	FillTriangle(vLeftT1,vLeftT2,vLeftT3, m_GameState.GetNumPlayers() == 1 ? olc::DARK_BLUE : olc::GREY );
+
+	//Right Triangle
+	olc::vi2d vRightT1 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4), (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 25);
+	olc::vi2d vRightT2 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4), (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 55);
+	olc::vi2d vRightT3 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4) + 25, (ScreenHeight() /4) + 25 +  vTittleSize.y * 1.5 + 40);
+	FillTriangle(vRightT1,vRightT2,vRightT3, m_GameState.GetNumPlayers() == NUM_MAX_PLAYERS ? olc::DARK_BLUE : olc::WHITE);
+
+	DrawString(olc::vi2d(ScreenWidth() /2 - 10, (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 30),std::to_string(m_GameState.GetNumPlayers()), olc::WHITE, NUM_PLAYERS_TITTLE_SIZE);
+	
+	for(size_t i = 0; i < m_GameState.GetNumPlayers(); ++i)
+	{
+		olc::vi2d vPlayerNameSize = GetTextSize(m_GameState.arrPlayers[i]->GetName()) * PLAYER_NAME_SIZE;
+		DrawString(olc::vi2d(ScreenWidth()/2 - (vPlayerNameSize.x /2),ScreenHeight()/2 + i * (vPlayerNameSize.y + 5)), m_GameState.arrPlayers[i]->GetName(), olc::WHITE, PLAYER_NAME_SIZE);
+	}
+
+	std::string strNumRoundsTittle(NUM_ROUNDS_TEXT);
+	olc::vi2d vRoundTextSize = GetTextSize(strNumRoundsTittle) *  NUM_ROUNDS_TEXT_SIZE;
+	
+	DrawString(olc::vi2d(ScreenWidth()/2 - (vRoundTextSize.x/2), ScreenHeight() * 2.5 / 4), strNumRoundsTittle, olc::GREY, NUM_ROUNDS_TEXT_SIZE);
+
+	olc::vi2d vrLeftT1 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4), (ScreenHeight() * 2.5/4) + 25+ vTittleSize.y * 1.5 + 25);
+	olc::vi2d vrLeftT2 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4), (ScreenHeight()*2.5/4) + 25 + vTittleSize.y * 1.5 + 55);
+	olc::vi2d vrLeftT3 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4) - 25, (ScreenHeight() *2.5/4) + 25 + vTittleSize.y * 1.5 + 40);
+	FillTriangle(vrLeftT1,vrLeftT2,vrLeftT3, m_GameState.GetNumRounds() == 1 ? olc::DARK_BLUE : olc::GREY );
+
+	//Right Triangle
+	olc::vi2d vrRightT1 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4), (ScreenHeight() *2.5/4) + 25 + vTittleSize.y * 1.5 + 25);
+	olc::vi2d vrRightT2 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4), (ScreenHeight() *2.5/4) + 25 + vTittleSize.y * 1.5 + 55);
+	olc::vi2d vrRightT3 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4) + 25, (ScreenHeight() *2.5/4) + 25 +  vTittleSize.y * 1.5 + 40);
+	FillTriangle(vrRightT1,vrRightT2,vrRightT3, m_GameState.GetNumRounds() == NUM_ROUND_MAX ? olc::DARK_BLUE : olc::GREY);
+
+	DrawString(olc::vi2d((ScreenWidth() /2) - 10, (ScreenHeight() *2.5/4) + 25 + vTittleSize.y * 1.5 + 30),std::to_string(m_GameState.GetNumRounds()), olc::GREY, NUM_PLAYERS_TITTLE_SIZE);
+
+	olc::vi2d vButtonAnchor(ScreenWidth() * .15, ScreenHeight() * .75);
+	olc::vi2d vButtonSize(ScreenWidth() * .05, ScreenWidth() * .05);
+	
+	bool bRectHovered = /*shorcut*/ GetKey(olc::D).bHeld  ||
+						/*button*/	GetMousePos().x > vButtonAnchor.x && GetMousePos().x < vButtonAnchor.x + vButtonSize.x &&  GetMousePos().y > vButtonAnchor.y && GetMousePos().y < vButtonAnchor.y + vButtonSize.y;
+	
+	FillRect(vButtonAnchor, vButtonSize, bRectHovered ? olc::GREEN : olc::RED);
+}
+
 void YamScoreBoard::DrawScoreColumn(olc::vi2d& vPos)
 {
 	uint8_t iRowCounter = 0;
@@ -122,32 +256,43 @@ void YamScoreBoard::DrawScoreColumn(olc::vi2d& vPos)
 	for (uint8_t e = EValues::As; e != EValues::Brelan; e++)
 	{
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-		DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), mapScoreLiterals[static_cast<EValues>(e)], olc::WHITE, LiteralSize);
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), mapScoreLiterals[static_cast<EValues>(e)], olc::WHITE, LiteralSize);
 		iRowCounter++;
 	}
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), strST1, olc::DARK_GREY, LiteralSize);
-	iRowCounter++;
+	if(m_RenderState.bShowTotals)
+	{
+		
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), strST1, olc::DARK_GREY, LiteralSize);
+		iRowCounter++;
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), strBonus, olc::DARK_MAGENTA, LiteralSize);
-	iRowCounter++;
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), strBonus, olc::DARK_MAGENTA, LiteralSize);
+		iRowCounter++;
+	}
+	else
+	{
+		iRowCounter += 2;
+	}
 
 	for (uint8_t e = EValues::Brelan; e != EValues::Name; e++)
 	{
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-		DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), mapScoreLiterals[static_cast<EValues>(e)], olc::WHITE, LiteralSize);
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), mapScoreLiterals[static_cast<EValues>(e)], olc::WHITE, LiteralSize);
 		iRowCounter++;
 	}
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), strST2, olc::DARK_GREY, LiteralSize);
-	iRowCounter++;
+	if(m_RenderState.bShowTotals)
+	{
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), strST2, olc::DARK_GREY, LiteralSize);
+		iRowCounter++;
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)),strTT, olc::GREEN, LiteralSize);
-	iRowCounter++;
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)),strTT, olc::GREEN, LiteralSize);
+		iRowCounter++;
+	}
 
 }
 
@@ -156,7 +301,7 @@ void YamScoreBoard::DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d&
 	uint8_t iRowCounter = 0;
 
 	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), pPlayer->GetName(), olc::DARK_YELLOW, LiteralSize);
+	DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), pPlayer->GetName(), olc::DARK_YELLOW, LiteralSize);
 	iRowCounter++;
 
 	for (uint8_t e = EValues::As; e != EValues::Brelan; e++)
@@ -164,34 +309,45 @@ void YamScoreBoard::DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d&
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
 
 		if(pPlayer->GetScoreState()[static_cast<EValues>(e)].first)
-			DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), olc::WHITE, LiteralSize);
+			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), olc::WHITE, LiteralSize);
 		iRowCounter++;
 	}
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST1(pPlayer)), olc::DARK_GREY, LiteralSize);
-	iRowCounter++;
+	if(m_RenderState.bShowTotals)
+	{
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST1(pPlayer)), olc::DARK_GREY, LiteralSize);
+		iRowCounter++;
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	uint8_t iBonusValue = HasBonus(pPlayer) ? 35 : 0;
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), std::to_string(iBonusValue), olc::DARK_MAGENTA, LiteralSize);
-	iRowCounter++;
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		uint8_t iBonusValue = HasBonus(pPlayer) ? 35 : 0;
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(iBonusValue), olc::DARK_MAGENTA, LiteralSize);
+		iRowCounter++;
+	}
+	else
+	{
+		iRowCounter += 2;
+	}
+	
 
 	for (uint8_t e = EValues::Brelan; e != EValues::Name; e++)
 	{
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
 		if (pPlayer->GetScoreState()[static_cast<EValues>(e)].first)
-			DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), olc::WHITE, LiteralSize);
+			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), olc::WHITE, LiteralSize);
 		iRowCounter++;
 	}
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST2(pPlayer)), olc::DARK_GREY, LiteralSize);
-	iRowCounter++;
+	if(m_RenderState.bShowTotals)
+	{
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST2(pPlayer)), olc::DARK_GREY, LiteralSize);
+		iRowCounter++;
 
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-	DrawString(vPos + olc::vi2d(LiteralOffset, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeTT(pPlayer)), olc::GREEN, LiteralSize);
-	iRowCounter++;
+		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeTT(pPlayer)), olc::GREEN, LiteralSize);
+		iRowCounter++;
+	}
 }
 
 uint16_t YamScoreBoard::ComputeST1(std::shared_ptr<Player> pPlayer)

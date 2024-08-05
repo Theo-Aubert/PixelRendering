@@ -53,24 +53,49 @@ public:
 
 	void InitScoreState();
 
-	inline std::map <EValues, std::pair<bool, uint16_t>>& GetScoreState() { return m_mapScoreSate;  }
+	inline std::map <EValues, std::pair<bool, uint8_t>>& GetScoreState() { return m_mapScoreSate;  }
 
 	inline std::string GetName() { return strName; }
 	inline void SetName(const std::string& strNewName) { strName = strNewName;  }
 
 	inline void SetAnchor(olc::vi2d& vAnchor) { m_vAnchor = vAnchor; }
+
+	inline void IncrTotalScore(uint16_t iScoreToAdd) { m_iTotalScore += iScoreToAdd; }
+	inline uint64_t GetTotalScore() const { return m_iTotalScore;}
+	
 private :
 
 	std::string strName = "NewPlayer";
-	std::map <EValues, std::pair<bool, uint16_t>> m_mapScoreSate;
+	std::map <EValues, std::pair<bool, uint8_t>> m_mapScoreSate;
+
+	uint64_t m_iTotalScore = 0;
 
 	olc::vi2d m_vAnchor;
 };
 
+#define MAX_PLAYERS 5
 
+//Set up Interface
+static const olc::vf2d vFrameAnchorPercentage(.35f,.25f);
+static const olc::vf2d vFrameSizePercentage(.30f, .5f);
+
+#define NUM_PLAYERS_TITTLE_TEXT "Nombre de joueurs"
+#define NUM_PLAYERS_TITTLE_SIZE 3
+#define PLAYER_NAME_SIZE 2
+#define NUM_MAX_PLAYERS 5
+
+#define NUM_ROUNDS_TEXT "Nombre de parties"
+#define NUM_ROUNDS_TEXT_SIZE 3
+#define NUM_ROUND_MAX 12
+
+//Grid Parameters
+#define GridHeightPercentage .25
 #define ScoreValueWidth 220
 #define ScoreValueHeight 40
-#define LiteralOffset 10
+
+
+//Text Entry Parameters
+#define LiteralOffset olc::vi2d(10, .3 * ScoreValueHeight)
 #define LiteralSize 2
 
 // Override base class with your custom functionality
@@ -79,6 +104,52 @@ class YamScoreBoard : public olc::PixelGameEngine
 	
 
 public:
+	enum EGamePhase
+	{
+		SetUp,
+		Round,
+		End
+	};
+
+	struct GameState
+	{
+		EGamePhase eCurrentPhase = SetUp;
+		std::vector<std::shared_ptr<Player>> arrPlayers;
+
+		size_t GetNumPlayers() { return arrPlayers.size();}
+		size_t AddPlayer();// {arrPlayers.emplace_back(std::make_shared<Player>()); return GetNumPlayers(); }
+		size_t RemovePlayer();
+
+		uint8_t iNumRounds = 1;
+		uint8_t GetNumRounds() { return iNumRounds;}
+		uint8_t IncrNumRounds();
+		uint8_t DecrNumRounds();
+	};
+
+	struct RoundState
+	{
+		uint8_t idxFirstPlayer	 = 0;
+		uint8_t idxCurrentPlayer = 0;
+		uint8_t idxBestPlayer	 = 0;
+	};
+
+	struct RenderState
+	{
+
+		olc::vi2d vMidSCreen;
+
+		//Set up phase UI Info
+		olc::vi2d vSetUpFrameAnchor;
+		olc::vi2d vSetUpFrameSize;
+		int iNumPlayerTextOffsetY = 0;
+		int iNumPlayerValueOffsetY = 0;
+		
+		bool bShowTotals = true;
+		olc::vi2d vEntryAnchor;
+
+		std::vector<std::vector<olc::vi2d>> m_matAnchors; //Compute once left top corner for each score cell
+		
+	};
 
 	YamScoreBoard()
 	{
@@ -93,6 +164,10 @@ public:
 
 private:
 
+	void DrawSetUpPhase(float fElapsedTime);
+	void DrawRoundPhase(float fElapsedTime);
+	void DrawEndPhase(float fElapsedTime);
+	
 	void DrawScoreColumn(olc::vi2d& vPos);
 
 	void DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d& vPos);
@@ -102,10 +177,13 @@ private:
 	uint16_t ComputeST2(std::shared_ptr<Player> pPlayer);
 	uint16_t ComputeTT(std::shared_ptr<Player> pPlayer);
 
+	RenderState m_RenderState;
+	GameState m_GameState;
+	RoundState m_CurrentRoundState;
+
 	uint8_t m_iNumPlayers = 3;
 	std::vector<std::shared_ptr<Player>> m_arrPlayers;
-
-	bool bEntryMode = false;
+	
 	olc::vi2d vEntryAnchor;
 
 	std::shared_ptr<Player> m_pCurrentWritingPlayer = nullptr;

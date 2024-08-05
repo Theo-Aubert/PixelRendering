@@ -663,7 +663,7 @@ int main(int argc, char* argv[])
 	//SandSimulation demo;
 	//ProceduralAnim demo;
 	YamScoreBoard demo;
-	if (demo.Construct(1920, 1080, 1, 1, false))
+	if (demo.Construct(1920, 1080, 1, 1, true))
 	{
 		demo.Start();
 		//demo.olc_UpdateMouseFocus(true);
