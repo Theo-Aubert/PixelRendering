@@ -180,9 +180,6 @@ private:
 	RenderState m_RenderState;
 	GameState m_GameState;
 	RoundState m_CurrentRoundState;
-
-	uint8_t m_iNumPlayers = 3;
-	std::vector<std::shared_ptr<Player>> m_arrPlayers;
 	
 	olc::vi2d vEntryAnchor;
 

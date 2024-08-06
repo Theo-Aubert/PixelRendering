@@ -15,7 +15,9 @@ size_t YamScoreBoard::GameState::AddPlayer()
 {
 	if(arrPlayers.size() < NUM_MAX_PLAYERS)
 	{
-		arrPlayers.emplace_back(std::make_shared<Player>());
+		std::shared_ptr<Player> pPlayer = std::make_shared<Player>();
+		pPlayer->InitScoreState();
+		arrPlayers.emplace_back(pPlayer);
 	}
 
 	return GetNumPlayers();
@@ -54,27 +56,12 @@ uint8_t YamScoreBoard::GameState::DecrNumRounds()
 bool YamScoreBoard::OnUserCreate()
 {
 	//First player is always here
-
-	for(int i = 0; i < 10; ++i)
-	{
-		m_GameState.AddPlayer();
-	}
+	m_GameState.AddPlayer();
 	
 	m_RenderState.vSetUpFrameAnchor = olc::vi2d(ScreenWidth()* vFrameAnchorPercentage.x, ScreenHeight()* vFrameAnchorPercentage.y);
 	m_RenderState.vSetUpFrameSize = olc::vi2d(ScreenWidth() * vFrameSizePercentage.x, ScreenHeight()* vFrameSizePercentage.y);
 	
-	for (uint8_t p = 0 ; p < m_iNumPlayers; ++p)
-	{
-		auto player = std::make_shared<Player>();
 
-		if (!player)
-		{
-			continue;
-		}
-
-		player->InitScoreState();
-		m_arrPlayers.emplace_back(player);
-	}
 
 	return true;
 }
@@ -91,6 +78,24 @@ bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 	{
 	case SetUp:
 		DrawSetUpPhase(fElapsedTime);
+
+		if (!IsTextEntryEnabled())
+		{
+			if (GetKey(olc::RIGHT).bReleased)
+				m_GameState.IncrNumRounds();
+
+			if (GetKey(olc::LEFT).bReleased)
+				m_GameState.DecrNumRounds();
+
+			if (GetKey(olc::UP).bReleased)
+				m_GameState.AddPlayer();
+
+			if (GetKey(olc::DOWN).bReleased)
+				m_GameState.RemovePlayer();
+
+			if(GetKey(olc::ENTER).bReleased)
+				m_GameState.eCurrentPhase = Round;
+		}
 		return true;
 		break;
 	default:
@@ -104,10 +109,10 @@ bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 	{
 		if (GetKey(olc::R).bReleased)
 		{
-			for (uint8_t iPlayers = 0; iPlayers < m_iNumPlayers; ++iPlayers)
+			for (uint8_t iPlayers = 0; iPlayers < m_GameState.GetNumPlayers() ; ++iPlayers)
 			{
 
-				m_arrPlayers[iPlayers]->InitScoreState();
+				m_GameState.arrPlayers[iPlayers]->InitScoreState();
 			}
 		
 		}
@@ -122,11 +127,15 @@ bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 	olc::vi2d vAnchor = olc::vi2d(ScreenWidth() / 4, ScreenHeight() / 4);
 	DrawScoreColumn(vAnchor);
 
-	for (uint8_t iPlayers = 0; iPlayers < m_iNumPlayers; ++iPlayers)
+	for (uint8_t iPlayers = 0; iPlayers < m_GameState.GetNumPlayers(); ++iPlayers)
 	{
+
+
+		std::shared_ptr<Player> pPlayer = m_GameState.arrPlayers[iPlayers];
+
 		olc::vi2d vPlayerAnchor = vAnchor + olc::vi2d(ScoreValueWidth * (iPlayers + 1), -ScoreValueHeight);
-		m_arrPlayers[iPlayers]->SetAnchor(vPlayerAnchor);
-		DrawPlayerColumn(m_arrPlayers[iPlayers], vPlayerAnchor);
+		pPlayer->SetAnchor(vPlayerAnchor);
+		DrawPlayerColumn(pPlayer, vPlayerAnchor);
 
 		if (GetMousePos().x > vPlayerAnchor.x && GetMousePos().x < vPlayerAnchor.x + ScoreValueWidth && GetMousePos().y > (vPlayerAnchor.y)  && GetMousePos().y < vPlayerAnchor.y + ScoreValueHeight * 15)
 		{
@@ -145,12 +154,12 @@ bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 			{
 				TextEntryEnable(true);
 				vEntryAnchor = olc::vi2d(vPlayerAnchor.x + LiteralOffset.x, iTempY + ScoreValueHeight * .3);
-				m_pCurrentWritingPlayer = m_arrPlayers[iPlayers];
+				m_pCurrentWritingPlayer = pPlayer;
 
 				if (row == 0)
 				{
 					eCurrentWritingValue = Name;
-					m_arrPlayers[iPlayers]->SetName("");
+					pPlayer->SetName("");
 				}
 				else
 				{
@@ -246,7 +255,7 @@ void YamScoreBoard::DrawSetUpPhase(float fElapsedTime)
 	bool bRectHovered = /*shorcut*/ GetKey(olc::D).bHeld  ||
 						/*button*/	GetMousePos().x > vButtonAnchor.x && GetMousePos().x < vButtonAnchor.x + vButtonSize.x &&  GetMousePos().y > vButtonAnchor.y && GetMousePos().y < vButtonAnchor.y + vButtonSize.y;
 	
-	FillRect(vButtonAnchor, vButtonSize, bRectHovered ? olc::GREEN : olc::RED);
+	//FillRect(vButtonAnchor, vButtonSize, bRectHovered ? olc::GREEN : olc::RED);
 }
 
 void YamScoreBoard::DrawScoreColumn(olc::vi2d& vPos)
