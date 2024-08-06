@@ -21,3 +21,5 @@
 *.vsidx
 *.lock
 .vs/PixelRendering/v17/DocumentLayout.json
+.idea/.idea.PixelRendering/.idea/indexLayout.xml
+.idea/.idea.PixelRendering/.idea/vcs.xml
