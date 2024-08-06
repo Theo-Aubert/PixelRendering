@@ -128,9 +128,13 @@ public:
 
 	struct RoundState
 	{
+		GameState* gameState = nullptr;
+		
 		uint8_t idxFirstPlayer	 = 0;
 		uint8_t idxCurrentPlayer = 0;
 		uint8_t idxBestPlayer	 = 0;
+
+		void NextPlayerTurn();
 	};
 
 	struct RenderState
@@ -204,7 +208,7 @@ private:
 	
 	void DrawScoreColumn(olc::vi2d& vPos);
 
-	void DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d& vPos);
+	void DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d& vPos, bool bIsCurrentPlayer);
 
 	uint16_t ComputeST1(std::shared_ptr<Player> pPlayer);
 	bool HasBonus(std::shared_ptr<Player> pPlayer);
