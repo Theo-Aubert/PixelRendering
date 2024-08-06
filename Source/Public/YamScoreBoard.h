@@ -151,6 +151,40 @@ public:
 		
 	};
 
+	class TextButtonWidget
+	{
+	public:
+		TextButtonWidget() {};
+		
+		TextButtonWidget(olc::PixelGameEngine* renderer, const olc::vi2d& pos, const olc::vi2d& size, const std::string& text) :
+			m_ParentRenderer(renderer),
+			m_vPos(pos),
+			m_vSize(size),
+			m_strText(text)
+		{}
+		
+		bool IsHovered() const;
+
+		bool OnClicked() const;
+
+		void Draw();
+		
+		olc::Pixel cBackgroundColor = olc::BLACK;
+		olc::Pixel cBorderColor		= olc::WHITE;
+		olc::Pixel cHoveredColor	= olc::WHITE;
+		olc::Pixel cTextColor		= olc::WHITE;
+		olc::Pixel cHoveredTextColor= olc::BLACK;
+
+		uint32_t iTextScale = 1;
+
+	private:
+
+		olc::PixelGameEngine* m_ParentRenderer = nullptr;
+		olc::vi2d m_vPos;
+		olc::vi2d m_vSize;
+		std::string m_strText;
+	};
+
 	YamScoreBoard()
 	{
 		// Name your application
@@ -185,4 +219,6 @@ private:
 
 	std::shared_ptr<Player> m_pCurrentWritingPlayer = nullptr;
 	EValues eCurrentWritingValue;
+
+	TextButtonWidget LaunchButton;
 };

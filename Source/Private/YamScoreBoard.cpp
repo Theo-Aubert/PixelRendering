@@ -1,5 +1,5 @@
 #include "../Public/YamScoreBoard.h"
-
+#include <cmath>
 void Player::InitScoreState()
 {
 	m_mapScoreSate.clear();
@@ -53,6 +53,64 @@ uint8_t YamScoreBoard::GameState::DecrNumRounds()
 	return iNumRounds;
 }
 
+bool YamScoreBoard::TextButtonWidget::IsHovered() const
+{
+	if(m_ParentRenderer->GetMousePos().x > m_vPos.x && m_ParentRenderer->GetMousePos().x < m_vPos.x + m_vSize.x
+		&& m_ParentRenderer->GetMousePos().y > m_vPos.y && m_ParentRenderer->GetMousePos().y < m_vPos.y + m_vSize.y)
+	{
+		return true;		
+	}
+
+	return false;
+}
+
+bool YamScoreBoard::TextButtonWidget::OnClicked() const
+{
+	return IsHovered() && m_ParentRenderer->GetMouse(0).bReleased;
+}
+
+void YamScoreBoard::TextButtonWidget::Draw()
+{
+	olc::vi2d vTextSize = m_ParentRenderer->GetTextSize(m_strText);
+	olc::vi2d vScaledTextSize = vTextSize * iTextScale;
+
+	//Scale down text if too big
+	// float wRatio = vScaledTextSize.x / (float)m_vSize.x;
+	// float hRatio = vScaledTextSize.y / (float)m_vSize.y;
+	//
+	// uint32_t wScale = iTextScale;
+	// uint32_t hScale = iTextScale;
+	//
+	// if(wRatio > 1)
+	// {
+	// 	wScale = m_vSize.x / vTextSize.x;
+	// }
+	//
+	// if(hRatio > 1)
+	// {
+	// 	hScale = m_vSize.y / vTextSize.y;
+	// }
+	//
+	// iTextScale = std::min(wScale,hScale);
+	// vScaledTextSize = vTextSize * iTextScale;
+
+	olc::vi2d vTextPos = m_vPos + ((m_vSize / 2) - (vScaledTextSize / 2));
+	
+	if(IsHovered())
+	{
+		m_ParentRenderer->FillRect(m_vPos, m_vSize, cHoveredColor);
+		m_ParentRenderer->DrawRect(m_vPos, m_vSize, cBorderColor);
+		m_ParentRenderer->DrawString(vTextPos, m_strText, cHoveredTextColor, iTextScale);
+		
+	}
+	else
+	{
+		m_ParentRenderer->FillRect(m_vPos, m_vSize, cBackgroundColor);
+		m_ParentRenderer->DrawRect(m_vPos, m_vSize, cBorderColor);
+		m_ParentRenderer->DrawString(vTextPos, m_strText, cTextColor, iTextScale);
+	}
+}
+
 bool YamScoreBoard::OnUserCreate()
 {
 	//First player is always here
@@ -60,9 +118,13 @@ bool YamScoreBoard::OnUserCreate()
 	
 	m_RenderState.vSetUpFrameAnchor = olc::vi2d(ScreenWidth()* vFrameAnchorPercentage.x, ScreenHeight()* vFrameAnchorPercentage.y);
 	m_RenderState.vSetUpFrameSize = olc::vi2d(ScreenWidth() * vFrameSizePercentage.x, ScreenHeight()* vFrameSizePercentage.y);
-	
 
+	olc::vi2d vButtonSize = GetTextSize(std::string("Lancer la partie")) * 3;
+	vButtonSize += olc::vi2d(150, 50);
 
+	olc::vi2d vButtonPos = olc::vi2d((ScreenWidth() * .5) - (vButtonSize.x * .5), ScreenHeight() * .85); 
+	LaunchButton = TextButtonWidget(this,vButtonPos, vButtonSize, std::string("Lancer la partie"));
+	LaunchButton.iTextScale = 3;
 	return true;
 }
 
@@ -221,20 +283,20 @@ void YamScoreBoard::DrawSetUpPhase(float fElapsedTime)
 	olc::vi2d vRightT1 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4), (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 25);
 	olc::vi2d vRightT2 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4), (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 55);
 	olc::vi2d vRightT3 = olc::vi2d((ScreenWidth()/2) + (vTittleSize.x /4) + 25, (ScreenHeight() /4) + 25 +  vTittleSize.y * 1.5 + 40);
-	FillTriangle(vRightT1,vRightT2,vRightT3, m_GameState.GetNumPlayers() == NUM_MAX_PLAYERS ? olc::DARK_BLUE : olc::WHITE);
+	FillTriangle(vRightT1,vRightT2,vRightT3, m_GameState.GetNumPlayers() == NUM_MAX_PLAYERS ? olc::DARK_BLUE : olc::GREY);
 
 	DrawString(olc::vi2d(ScreenWidth() /2 - 10, (ScreenHeight() /4) + 25 + vTittleSize.y * 1.5 + 30),std::to_string(m_GameState.GetNumPlayers()), olc::WHITE, NUM_PLAYERS_TITTLE_SIZE);
 	
 	for(size_t i = 0; i < m_GameState.GetNumPlayers(); ++i)
 	{
 		olc::vi2d vPlayerNameSize = GetTextSize(m_GameState.arrPlayers[i]->GetName()) * PLAYER_NAME_SIZE;
-		DrawString(olc::vi2d(ScreenWidth()/2 - (vPlayerNameSize.x /2),ScreenHeight()/2 + i * (vPlayerNameSize.y + 5)), m_GameState.arrPlayers[i]->GetName(), olc::WHITE, PLAYER_NAME_SIZE);
+		DrawString(olc::vi2d(ScreenWidth()/2 - (vPlayerNameSize.x /2),ScreenHeight()/2 + i * (vPlayerNameSize.y + 5)), m_GameState.arrPlayers[i]->GetName(), olc::DARK_YELLOW, PLAYER_NAME_SIZE);
 	}
 
 	std::string strNumRoundsTittle(NUM_ROUNDS_TEXT);
 	olc::vi2d vRoundTextSize = GetTextSize(strNumRoundsTittle) *  NUM_ROUNDS_TEXT_SIZE;
 	
-	DrawString(olc::vi2d(ScreenWidth()/2 - (vRoundTextSize.x/2), ScreenHeight() * 2.5 / 4), strNumRoundsTittle, olc::GREY, NUM_ROUNDS_TEXT_SIZE);
+	DrawString(olc::vi2d(ScreenWidth()/2 - (vRoundTextSize.x/2), ScreenHeight() * 2.5 / 4), strNumRoundsTittle, olc::WHITE, NUM_ROUNDS_TEXT_SIZE);
 
 	olc::vi2d vrLeftT1 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4), (ScreenHeight() * 2.5/4) + 25+ vTittleSize.y * 1.5 + 25);
 	olc::vi2d vrLeftT2 = olc::vi2d((ScreenWidth()/2) - (vTittleSize.x /4), (ScreenHeight()*2.5/4) + 25 + vTittleSize.y * 1.5 + 55);
@@ -256,6 +318,7 @@ void YamScoreBoard::DrawSetUpPhase(float fElapsedTime)
 						/*button*/	GetMousePos().x > vButtonAnchor.x && GetMousePos().x < vButtonAnchor.x + vButtonSize.x &&  GetMousePos().y > vButtonAnchor.y && GetMousePos().y < vButtonAnchor.y + vButtonSize.y;
 	
 	//FillRect(vButtonAnchor, vButtonSize, bRectHovered ? olc::GREEN : olc::RED);
+	LaunchButton.Draw();
 }
 
 void YamScoreBoard::DrawScoreColumn(olc::vi2d& vPos)
