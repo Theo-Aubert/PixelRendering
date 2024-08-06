@@ -468,44 +468,55 @@ void YamScoreBoard::DrawScoreColumn(olc::vi2d& vPos)
 
 void YamScoreBoard::DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d& vPos, bool bIsCurrentPlayer)
 {
-	olc::Pixel nameColor = olc::DARK_YELLOW;
+	olc::Pixel nameColor = olc::VERY_DARK_YELLOW;
 	olc::Pixel lineColor = olc::WHITE;
-	olc::Pixel backgroundColor = olc::WHITE;
+	olc::Pixel backgroundColor = olc::VERY_DARK_CYAN;
 	olc::Pixel valueColor = olc::WHITE;
+	olc::Pixel stColor = olc::DARK_GREY;
+	olc::Pixel bonusColor = olc::DARK_MAGENTA;
+	olc::Pixel ttColor = olc::GREEN;
 
 	if(bIsCurrentPlayer)
 	{
 		nameColor = olc::YELLOW;
 		//lineColor = olc::YELLOW;
 		valueColor = olc::BLACK;
+		stColor = olc::GREY;
+		bonusColor = olc::MAGENTA;
 	}
 	
 	uint8_t iRowCounter = 0;
 
 	if(bIsCurrentPlayer)
 		FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), backgroundColor);
-	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), lineColor);
-	DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), pPlayer->GetName(), valueColor, LiteralSize);
+	DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+	DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), pPlayer->GetName(), nameColor, LiteralSize);
 	iRowCounter++;
 
 	for (uint8_t e = EValues::As; e != EValues::Brelan; e++)
 	{
+		if(bIsCurrentPlayer)
+			FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), backgroundColor);
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
 
 		if(pPlayer->GetScoreState()[static_cast<EValues>(e)].first)
-			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), olc::WHITE, LiteralSize);
+			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), valueColor, LiteralSize);
 		iRowCounter++;
 	}
 
 	if(m_RenderState.bShowTotals)
 	{
+		if(bIsCurrentPlayer)
+			FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), backgroundColor);
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST1(pPlayer)), olc::DARK_GREY, LiteralSize);
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST1(pPlayer)), stColor, LiteralSize);
 		iRowCounter++;
 
+		if(bIsCurrentPlayer)
+			FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), backgroundColor);
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
 		uint8_t iBonusValue = HasBonus(pPlayer) ? 35 : 0;
-		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(iBonusValue), olc::DARK_MAGENTA, LiteralSize);
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(iBonusValue), bonusColor, LiteralSize);
 		iRowCounter++;
 	}
 	else
@@ -516,20 +527,26 @@ void YamScoreBoard::DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d&
 
 	for (uint8_t e = EValues::Brelan; e != EValues::Name; e++)
 	{
+		if(bIsCurrentPlayer)
+			FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), backgroundColor);
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
 		if (pPlayer->GetScoreState()[static_cast<EValues>(e)].first)
-			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), olc::WHITE, LiteralSize);
+			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), valueColor, LiteralSize);
 		iRowCounter++;
 	}
 
 	if(m_RenderState.bShowTotals)
 	{
+		if(bIsCurrentPlayer)
+			FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), backgroundColor);
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST2(pPlayer)), olc::DARK_GREY, LiteralSize);
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeST2(pPlayer)), stColor, LiteralSize);
 		iRowCounter++;
 
+		if(bIsCurrentPlayer)
+			FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), backgroundColor);
 		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeTT(pPlayer)), olc::GREEN, LiteralSize);
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(ComputeTT(pPlayer)), ttColor, LiteralSize);
 		iRowCounter++;
 	}
 }
