@@ -83,6 +83,7 @@ static const olc::vf2d vFrameSizePercentage(.30f, .5f);
 #define NUM_PLAYERS_TITTLE_SIZE 3
 #define PLAYER_NAME_SIZE 2
 #define NUM_MAX_PLAYERS 5
+#define PLAYER_NAME_MAX_CHAR 12
 
 #define NUM_ROUNDS_TEXT "Nombre de parties"
 #define NUM_ROUNDS_TEXT_SIZE 3
@@ -124,6 +125,9 @@ public:
 		uint8_t GetNumRounds() { return iNumRounds;}
 		uint8_t IncrNumRounds();
 		uint8_t DecrNumRounds();
+
+		uint8_t idxRound = 1;
+		bool bIsComplete = false;
 	};
 
 	struct RoundState
@@ -133,8 +137,13 @@ public:
 		uint8_t idxFirstPlayer	 = 0;
 		uint8_t idxCurrentPlayer = 0;
 		uint8_t idxBestPlayer	 = 0;
+		uint8_t idxTurn			 = 1;
+
+		std::pair<EValues, uint8_t> bufferScore = std::make_pair(Name, 0);
 
 		void NextPlayerTurn();
+
+		bool bIsComplete = false;
 	};
 
 	struct RenderState
@@ -167,6 +176,8 @@ public:
 			m_strText(text)
 		{}
 		
+		inline void SetText(const std::string& strText) { m_strText = strText; }
+
 		bool IsHovered() const;
 
 		bool OnClicked() const;
@@ -189,6 +200,41 @@ public:
 		std::string m_strText;
 	};
 
+	class ListWidget
+	{
+	public:
+		ListWidget() {};
+
+		ListWidget(olc::PixelGameEngine* renderer, const olc::vi2d& pos, const olc::vi2d& size, std::vector<std::string>& arrEntries) :
+			m_ParentRenderer(renderer),
+			m_vPos(pos),
+			m_vSize(size),
+			m_arrEntries(arrEntries)
+		{}
+
+		olc::Pixel cBackgroundColor = olc::BLACK;
+		olc::Pixel cBorderColor = olc::RED;
+		olc::Pixel cHoveredColor = olc::WHITE;
+		olc::Pixel cTextColor = olc::WHITE;
+		olc::Pixel cHoveredTextColor = olc::BLACK;
+
+		uint32_t iTextScale = LiteralSize;
+		
+		bool IsHovered() const;
+
+		bool OnClicked(std::string& strOutEntry) const;
+
+
+		void Draw();
+
+	private:
+
+		olc::PixelGameEngine* m_ParentRenderer = nullptr;
+		olc::vi2d m_vPos;
+		olc::vi2d m_vSize;
+		std::vector<std::string> m_arrEntries;
+	};
+
 	YamScoreBoard()
 	{
 		// Name your application
@@ -205,24 +251,39 @@ private:
 	void DrawSetUpPhase(float fElapsedTime);
 	void DrawRoundPhase(float fElapsedTime);
 	void DrawEndPhase(float fElapsedTime);
-	
+
+
 	void DrawScoreColumn(olc::vi2d& vPos);
+	void DrawPlayerColumn(int idxPlayer, olc::vi2d& vPos, bool bIsCurrentPlayer);
+	void ClickValueCell();
+	void NextPlayerTurn();
 
-	void DrawPlayerColumn(std::shared_ptr<Player> pPlayer, olc::vi2d& vPos, bool bIsCurrentPlayer);
+	//Score Computation functions
+	static uint16_t ComputeST1(std::shared_ptr<Player> pPlayer);
+	static bool HasBonus(std::shared_ptr<Player> pPlayer);
+	static uint16_t ComputeST2(std::shared_ptr<Player> pPlayer);
+	static uint16_t ComputeTT(std::shared_ptr<Player> pPlayer);
 
-	uint16_t ComputeST1(std::shared_ptr<Player> pPlayer);
-	bool HasBonus(std::shared_ptr<Player> pPlayer);
-	uint16_t ComputeST2(std::shared_ptr<Player> pPlayer);
-	uint16_t ComputeTT(std::shared_ptr<Player> pPlayer);
+	void DrawBestPlayer();
 
 	RenderState m_RenderState;
 	GameState m_GameState;
 	RoundState m_CurrentRoundState;
 	
+	bool bIsSelectingScore = false;
 	olc::vi2d vEntryAnchor;
+	olc::vi2d m_vHoveredCell;
+	olc::vi2d m_vMainAnchor;
 
 	std::shared_ptr<Player> m_pCurrentWritingPlayer = nullptr;
 	EValues eCurrentWritingValue;
 
 	TextButtonWidget LaunchButton;
+	TextButtonWidget NextButton;
+	TextButtonWidget TurnCount;
+	TextButtonWidget RoundCount;
+	ListWidget ValueWidget;
+
+	olc::Sprite* m_pCrownSprite = nullptr;
+	olc::Decal* m_pCrownDecal = nullptr;
 };
