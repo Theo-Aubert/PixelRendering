@@ -658,11 +658,12 @@ int main(int argc, char* argv[])
 {
 	srand(time(NULL));
 
+	TAUDoom demo;
 	//ImageProcessor demo;
 	//WaveFC demo;
-	//SandSimulation demo;
+	////SandSimulation demo;
 	//ProceduralAnim demo;
-	YamScoreBoard demo;
+	//YamScoreBoard demo;
 	if (demo.Construct(1920, 1080, 1, 1, false))
 	{
 		demo.Start();

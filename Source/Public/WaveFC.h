@@ -11,10 +11,10 @@
 
 enum  EConnect : uint8_t
 {
-	North	= 0x0F,
-	South	= ~North,
-	West	= 0x55,
-	East	= ~West	
+	North	= 0,
+	South,
+	West,
+	East	
 };
 
 
@@ -93,6 +93,9 @@ private:
 
 	size_t GetEntropy(const olc::vi2d& coord);
 	size_t GetEntropy(int x, int y);
+
+	//return non-collapsed tile coordinates with lowest entropy (chosen at random if tied)
+	olc::vi2d GetLowestEntropy();
 	
 	bool CollapseTile(const olc::vi2d& coord);
 	bool CollapseTile(int x, int y);
@@ -103,11 +106,14 @@ private:
 	bool IsTileCollapsed(const olc::vi2d& coord);
 	bool IsTileCollapsed(int x, int y);
 	
+	void DrawTiles();
 	void DrawEmptyGrid();
 
 	void DrawModules();
 
 	void DrawModuleConnex(SimpleTile& Tile, olc::vi2d& pos);
+
+	bool bIsStarted = false;
 
 
 };

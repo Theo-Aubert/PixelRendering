@@ -1,4 +1,7 @@
 #include "../Public/WaveFC.h"
+#include <chrono>
+#include <thread>
+
 
 bool WaveFC::OnUserCreate()
 {
@@ -94,16 +97,45 @@ bool WaveFC::OnUserCreate()
 	CRightDown.m_connexMap.emplace(EConnect::West, EMaterial::Grass);
 
 	std::srand(std::time(nullptr));
+
+	InitGrid();
+
 	return true;
 }
 
 bool WaveFC::OnUserUpdate(float fElapsedTime)
 {
 
+	Clear(olc::BLACK);
+
+	if (GetKey(olc::ESCAPE).bReleased)
+	{
+		return false;
+	}
+
+	if (GetKey(olc::R).bReleased)
+	{
+		InitGrid();
+	}
+
+	if (GetKey(olc::SPACE).bReleased)
+	{
+		bIsStarted = !bIsStarted;
+	}
+
 	DrawEmptyGrid();
+	DrawTiles();
 
 	DrawModules();
 
+	if (bIsStarted)
+	{
+		olc::vi2d vNextTile = GetLowestEntropy();
+		if (vNextTile != olc::vi2d(-1, -1))
+			CollapseTile(GetLowestEntropy());
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	return true;
 }
 
@@ -130,7 +162,7 @@ void WaveFC::InitGrid()
 	{
 		std::vector<std::set<SimpleTile*>> vLine;
 		vLine.reserve((m_vGridSize.y));
-		for(int j = 0; i < m_vGridSize.y; ++i)
+		for(int j = 0; j < m_vGridSize.y; ++j)
 		{
 			 
 			vLine.emplace_back(tilesSet);
@@ -146,7 +178,7 @@ bool WaveFC::AreCoordInBounds(const olc::vi2d& coord)
 
 bool WaveFC::AreCoordInBounds(int x, int y)
 {
-	return (x < 0 || x >= m_vGridSize.x || y < 0 || y >= m_vGridSize.y);
+	return !(x < 0 || x >= m_vGridSize.x || y < 0 || y >= m_vGridSize.y);
 }
 
 size_t WaveFC::GetEntropy(const olc::vi2d& coord)
@@ -158,10 +190,57 @@ size_t WaveFC::GetEntropy(int x, int y)
 {
 	if(!AreCoordInBounds(x,y))
 	{
+		//std::cout << "OOB\n";
 		return 0; //Specific value for OOB request. Minimum value for valid coordinates is 1.
 	}
 
 	return m_vModuleGrid[x][y].size();
+}
+
+olc::vi2d WaveFC::GetLowestEntropy()
+{
+	olc::vi2d vResult;
+	size_t iMinEntropy = 13; //max entropy value at init state is 12
+	std::vector<olc::vi2d> vPossibilities;
+
+	for (int i = 0; i < m_vGridSize.x; ++i)
+	{
+		for (int j = 0; j < m_vGridSize.y; ++j)
+		{
+			if (IsTileCollapsed(i, j))
+			{
+				continue;
+			}
+
+			int iCurrentEntropy = GetEntropy(i, j);
+
+			if (iCurrentEntropy <= 1)
+			{
+				continue;
+			}
+
+			if (iCurrentEntropy < iMinEntropy)
+			{
+				vPossibilities.clear();
+				vPossibilities.emplace_back(i, j);
+				iMinEntropy = iCurrentEntropy;
+			}
+			else if(iCurrentEntropy == iMinEntropy)
+			{
+				vPossibilities.emplace_back(i, j);
+			}
+		}
+	}
+	if (vPossibilities.size())
+	{
+		int randidx = std::rand() % vPossibilities.size();
+		return vPossibilities[randidx];
+
+	}
+	else
+	{
+		return olc::vi2d(-1, -1);
+	}
 }
 
 bool WaveFC::CollapseTile(const olc::vi2d& coord)
@@ -220,9 +299,34 @@ void WaveFC::Propagate(int x, int y)
 
 			for (auto const& tile : setToReduce)
 			{
-				if (pTile->m_connexMap[eDir] != tile->m_connexMap[~eDir])
+				switch (eDir)
 				{
-					arrToRemove.push_back(tile);
+				case North:
+					if (pTile->m_connexMap[eDir] != tile->m_connexMap[South])
+					{
+						arrToRemove.push_back(tile);
+					}
+					break;
+				case South:
+					if (pTile->m_connexMap[eDir] != tile->m_connexMap[North])
+					{
+						arrToRemove.push_back(tile);
+					}
+					break;
+				case West:
+					if (pTile->m_connexMap[eDir] != tile->m_connexMap[East])
+					{
+						arrToRemove.push_back(tile);
+					}
+					break;
+				case East:
+					if (pTile->m_connexMap[eDir] != tile->m_connexMap[West])
+					{
+						arrToRemove.push_back(tile);
+					}
+					break;
+				default:
+					break;
 				}
 			}
 
@@ -235,20 +339,20 @@ void WaveFC::Propagate(int x, int y)
 	//Raw iteration throug neighbors here, a smart loop would be accurate for generalization purposes
 
 	//North
-	if(AreCoordInBounds(x, y + 1))
-		reduce(pCollapsedTile, North, m_vModuleGrid[x][y + 1]);
+	if(AreCoordInBounds(x, y - 1) && !IsTileCollapsed(x,y-1))
+		reduce(pCollapsedTile, North, m_vModuleGrid[x][y -1]);
 
 	//South
-	if (AreCoordInBounds(x, y - 1))
-		reduce(pCollapsedTile, South, m_vModuleGrid[x][y - 1]);
+	if (AreCoordInBounds(x, y + 1) && !IsTileCollapsed(x, y + 1))
+		reduce(pCollapsedTile, South, m_vModuleGrid[x][y + 1]);
 
 	//West
-	if (AreCoordInBounds(x - 1, y))
+	if (AreCoordInBounds(x - 1, y) && !IsTileCollapsed(x - 1, y))
 		reduce(pCollapsedTile, West, m_vModuleGrid[x - 1][y]);
 
 	//East
-	if (AreCoordInBounds(x + 1, y))
-		reduce(pCollapsedTile, North, m_vModuleGrid[x + 1][y]);
+	if (AreCoordInBounds(x + 1, y) && !IsTileCollapsed(x + 1,y))
+		reduce(pCollapsedTile, East, m_vModuleGrid[x + 1][y]);
 	
 }
 
@@ -266,6 +370,32 @@ bool WaveFC::IsTileCollapsed(int x, int y)
 	}
 	
 	return m_vModuleGrid[x][y].size() == 1;
+}
+
+void WaveFC::DrawTiles()
+{
+	olc::vi2d vTLCorner = { int((ScreenWidth() - m_vGridSize.x * m_iTileSize) / 2.),int((ScreenHeight() - m_vGridSize.y * m_iTileSize) / 2.) };
+	olc::vi2d vTileCorner;
+
+	for (int i = 0; i < m_vGridSize.x; ++i)
+	{
+		for (int j = 0; j < m_vGridSize.y; ++j)
+		{
+			vTileCorner = vTLCorner + olc::vi2d(i * m_iTileSize, j * m_iTileSize);
+
+			if (!IsTileCollapsed(i, j))
+			{
+				//DrawString(vTileCorner, "x:" + std::to_string(i) + "| y:" + std::to_string(j));
+				DrawString(vTileCorner + olc::vi2d(0.3 * m_iTileSize, 0.3 * m_iTileSize), std::to_string(GetEntropy(i, j)));
+				continue;
+			}
+
+			vTileCorner = vTLCorner + olc::vi2d(i * m_iTileSize, j * m_iTileSize);
+
+			SimpleTile* pCollapsedTile = *m_vModuleGrid[i][j].begin();
+			DrawDecal(vTileCorner, pCollapsedTile->m_pDecal, {3.,3.});
+		}
+	}
 }
 
 void WaveFC::DrawEmptyGrid()

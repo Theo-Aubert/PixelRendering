@@ -3,20 +3,29 @@
 #include "../Externals/olcPixelGameEngine.h"
 #include "Constants.h"
 
-#define screenWidth 640
-#define screenHeight 480
-#define mapWidth 24
-#define mapHeight 24
-#define mapSizeX 512.
-#define mapSizeY 512.
+//constexpr int screenWidth = 640;
+//constexpr int screenHeight = 480;
+constexpr int mapWidth = 24;
+constexpr int mapHeight = 24;
+constexpr float mapSizeX = 24.f;
+constexpr float mapSizeY = 24.f;
+
+constexpr int miniMapScale = 15;
+
+constexpr float cellSize = mapSizeX / mapWidth; // world unit size 
 
 struct TAUPlayer
 {
 	olc::vd2d vPosition;
-	olc::vd2d vLookAt;
+	olc::vd2d vLookAt = olc::vd2d(cos(PI / 2), sin(PI / 2));
 	olc::vd2d vCameraPlane;
-	double dSpeed = 75.;
-	double dRotateSpeed = PI / 8.;
+	double dLookAtAngle = PI / 2;
+	double dFoV = PI / 3;
+	double dSpeed = 2.;
+
+	double dRotateSpeed = PI / 4.;
+
+	olc::vd2d GetRightVector();
 };
 
 class TAUDoom : public olc::PixelGameEngine
@@ -35,6 +44,10 @@ public:
 
 private:
 
+	void Setup2DMap();
+
+	void DrawPlayer();
+
 	void Render2DMap();
 
 	void RenderDoomMap();
@@ -49,10 +62,12 @@ private:
 	//Sprites 
 	olc::Sprite* pPlayerSprite = nullptr;
 	olc::Sprite* pWallSprite = nullptr;
+	olc::Sprite* pMiniMapSprite = nullptr;
 
 	//Decals
 	olc::Decal* pWallDecal = nullptr;
 	olc::Decal* pPlayerDecal = nullptr;
+	olc::Decal* pMiniMapDecal = nullptr;
 
 	int worldMap[mapWidth][mapHeight] =
 	{

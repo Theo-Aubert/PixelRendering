@@ -16,7 +16,6 @@ size_t YamScoreBoard::GameState::AddPlayer()
 	if(arrPlayers.size() < NUM_MAX_PLAYERS)
 	{
 		std::shared_ptr<Player> pPlayer = std::make_shared<Player>();
-		pPlayer->InitScoreState();
 		arrPlayers.emplace_back(pPlayer);
 	}
 
@@ -31,6 +30,15 @@ size_t YamScoreBoard::GameState::RemovePlayer()
 	}
 
 	return GetNumPlayers();
+}
+
+void YamScoreBoard::GameState::InitGame()
+{
+	for (auto player : arrPlayers)
+	{
+		player->InitScoreState();
+		InitRoundScores(player);
+	}
 }
 
 uint8_t YamScoreBoard::GameState::IncrNumRounds()
@@ -51,6 +59,48 @@ uint8_t YamScoreBoard::GameState::DecrNumRounds()
 	}
 
 	return iNumRounds;
+}
+
+void YamScoreBoard::GameState::StartNewRound()
+{
+}
+
+void YamScoreBoard::GameState::EndRound()
+{
+	uint16_t iBestRoundScore = 0;
+	std::shared_ptr<Player> pBestPlayer = nullptr;
+	for (auto player : arrPlayers)
+	{
+		player->GetRoundScores()[idxRound] = ComputeTT(player);
+		player->IncrTotalScore(ComputeTT(player));
+
+		if (player->GetRoundScores()[idxRound] > iBestRoundScore)
+		{
+			pBestPlayer = player;
+			iBestRoundScore = player->GetRoundScores()[idxRound];
+		}
+	}
+
+	pBestPlayer->IncrVictoryCount();
+
+	++idxRound;
+
+	if (idxRound > GetNumRounds())
+	{
+		bIsComplete = true;
+	}
+}
+
+void YamScoreBoard::GameState::InitRoundScores(std::shared_ptr<Player> pPlayer)
+{
+	auto& mapRoundScores = pPlayer->GetRoundScores();
+
+	mapRoundScores.clear();
+
+	for (int i = 1; i <= iNumRounds; i++)
+	{
+		mapRoundScores.emplace(std::make_pair(i, 0));
+	}
 }
 
 void YamScoreBoard::RoundState::NextPlayerTurn()
@@ -177,6 +227,51 @@ bool YamScoreBoard::OnUserCreate()
 
 	m_pCrownDecal = new olc::Decal(m_pCrownSprite);
 
+	
+	vButtonSize = GetTextSize(std::string("Partie Suivante")) * 3;
+	vButtonSize += olc::vi2d(150, 50);
+	vButtonPos = olc::vi2d((ScreenWidth() * .5) - (vButtonSize.x * .5), ScreenHeight() * .80);
+	NextRoundButton = TextButtonWidget(this, vButtonPos, vButtonSize, std::string("Partie Suivante"));
+	NextRoundButton.cBackgroundColor = olc::DARK_CYAN;
+	NextRoundButton.cBorderColor = olc::WHITE;
+	NextRoundButton.cHoveredColor = olc::CYAN;
+	NextRoundButton.cTextColor = olc::WHITE;
+	NextRoundButton.cHoveredTextColor = olc::BLACK;
+	NextRoundButton.iTextScale = 3;
+
+	vButtonSize = GetTextSize(std::string("Fin de partie")) * 3;
+	vButtonSize += olc::vi2d(150, 50);
+	vButtonPos = olc::vi2d((ScreenWidth() * .85) - (vButtonSize.x * .5), ScreenHeight() * .80);
+	EndGameButton = TextButtonWidget(this, vButtonPos, vButtonSize, std::string("Fin de partie"));
+	EndGameButton.cBackgroundColor = olc::DARK_GREEN;
+	EndGameButton.cBorderColor = olc::WHITE;
+	EndGameButton.cHoveredColor = olc::DARK_RED;
+	EndGameButton.cTextColor = olc::WHITE;
+	EndGameButton.cHoveredTextColor = olc::BLACK;
+	EndGameButton.iTextScale = 3;
+
+	vButtonSize = GetTextSize(std::string("Retour au Menu")) * 3;
+	vButtonSize += olc::vi2d(150, 50);
+	vButtonPos = olc::vi2d((ScreenWidth() * .5) - (vButtonSize.x * .5), ScreenHeight() * .80);
+	BackToMenuButton = TextButtonWidget(this, vButtonPos, vButtonSize, std::string("Retour au Menu"));
+	/*EndGameButton.cBackgroundColor = olc::BLA;
+	EndGameButton.cBorderColor = olc::WHITE;
+	EndGameButton.cHoveredColor = olc::DARK_RED;
+	EndGameButton.cTextColor = olc::WHITE;
+	EndGameButton.cHoveredTextColor = olc::BLACK;*/
+	BackToMenuButton.iTextScale = 3;
+
+	vButtonSize = GetTextSize(std::string("Quitter")) * 2;
+	vButtonSize += olc::vi2d(150, 50);
+	vButtonPos = olc::vi2d((ScreenWidth() * .90) - (vButtonSize.x * .5), ScreenHeight() * .05);
+	QuitRoundButton = TextButtonWidget(this, vButtonPos, vButtonSize, std::string("Retour au Menu"));
+	QuitRoundButton.cBackgroundColor = olc::DARK_RED;
+	QuitRoundButton.cBorderColor = olc::WHITE;
+	QuitRoundButton.cHoveredColor = olc::RED;
+	QuitRoundButton.cTextColor = olc::BLACK;
+	QuitRoundButton.cHoveredTextColor = olc::WHITE;
+	QuitRoundButton.iTextScale = 2;
+
 	return true;
 }
 
@@ -210,7 +305,9 @@ bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 			bool bLaunched = LaunchButton.OnClicked() || GetKey(olc::L).bReleased;
 			if (bLaunched)
 			{
+				m_GameState.InitGame();
 
+				//m_GameState.eCurrentPhase = ScoreTable;
 				m_GameState.eCurrentPhase = Round;
 				olc::vi2d vButtonSize = GetTextSize(std::string("Tour :\n\n12 / 12\n")) * 3;
 				TurnCount = TextButtonWidget(this, olc::vi2d(ScreenWidth() * .85, ScreenHeight() * .5), vButtonSize, "Tour :\n\n1 / 12");
@@ -226,80 +323,22 @@ bool YamScoreBoard::OnUserUpdate(float fElapsedTime)
 		}
 		return true;
 		break;
+	case Round :
+		DrawRoundPhase(fElapsedTime);
+		return true;
+		break;
+
+	case ScoreTable:
+		DrawScoreTable(fElapsedTime);
+		return true;
+		break;
+	case End:
+		DrawEndPhase(fElapsedTime);
+		break;
 	default:
 		break;
 	}
 	
-	Clear(olc::VERY_DARK_BLUE);
-
-	//Shortcuts (avoid conflict when typing
-	if(!IsTextEntryEnabled())
-	{
-		if(GetKey(olc::T).bReleased)
-		{
-			m_RenderState.bShowTotals = !m_RenderState.bShowTotals;
-		}
-	}
-	
-
-	m_vMainAnchor = olc::vi2d((ScreenWidth() / 2) - (m_GameState.GetNumPlayers() + 1) * ScoreValueWidth / 2, ScreenHeight() / 4);
-	//m_vHoveredCell = olc::vi2d(std::clamp(((GetMousePos().x - m_vMainAnchor.x) / ScoreValueWidth) - 1, 0, (int)(m_GameState.GetNumPlayers() - 1)), std::clamp(((GetMousePos().y - m_vMainAnchor.y) / ScoreValueHeight), 0, 14));
-	m_vHoveredCell = olc::vi2d(((GetMousePos().x - m_vMainAnchor.x) / ScoreValueWidth) - 1, ((GetMousePos().y - m_vMainAnchor.y) / ScoreValueHeight));
-	DrawScoreColumn(m_vMainAnchor);
-
-	for (uint8_t iPlayers = 0; iPlayers < m_GameState.GetNumPlayers(); ++iPlayers)
-	{
-		
-		std::shared_ptr<Player> pPlayer = m_GameState.arrPlayers[iPlayers];
-
-		olc::vi2d vPlayerAnchor = m_vMainAnchor + olc::vi2d(ScoreValueWidth * (iPlayers + 1), -ScoreValueHeight);
-		pPlayer->SetAnchor(vPlayerAnchor);
-		DrawPlayerColumn(iPlayers, vPlayerAnchor, m_CurrentRoundState.idxCurrentPlayer == iPlayers);		
-	}
-	
-	NextButton.Draw();
-	TurnCount.Draw();
-	RoundCount.Draw();
-	
-
-	if (m_GameState.GetNumPlayers() > 1)
-	{
-		DrawBestPlayer();
-	}
-
-	if (!bIsSelectingScore && !IsTextEntryEnabled() && (GetKey(olc::SPACE).bReleased || NextButton.OnClicked()))
-	{
-		m_CurrentRoundState.NextPlayerTurn();
-		
-
-		if (m_CurrentRoundState.bIsComplete)
-		{
-			++m_GameState.idxRound;
-			if (m_GameState.idxRound > m_GameState.GetNumRounds())
-			{
-				return false;
-			}
-
-			uint8_t iNewFirstPlayer = ++m_CurrentRoundState.idxFirstPlayer % m_GameState.GetNumPlayers();
-			m_CurrentRoundState = RoundState();
-			m_CurrentRoundState.bIsComplete = false;
-			m_CurrentRoundState.idxFirstPlayer = iNewFirstPlayer;
-			m_CurrentRoundState.idxCurrentPlayer = m_CurrentRoundState.idxFirstPlayer;
-			m_CurrentRoundState.idxBestPlayer = m_CurrentRoundState.idxFirstPlayer;
-			m_CurrentRoundState.gameState = &m_GameState;
-
-			for (auto player : m_GameState.arrPlayers)
-			{
-				player->InitScoreState();
-			}
-		}
-
-		TurnCount.SetText("Tour :\n\n" + std::to_string(m_CurrentRoundState.idxTurn) + " / 12");
-		RoundCount.SetText("Partie :\n\n" + std::to_string(m_GameState.idxRound) + " / " + std::to_string(m_GameState.GetNumRounds()));
-
-		
-
-	}
 	return true;
 }
 
@@ -315,8 +354,9 @@ void YamScoreBoard::OnTextEntryComplete(const std::string& strText)
 		else
 		{
 			//Brelan case, nothing else to handle here
-			m_CurrentRoundState.bufferScore = std::make_pair(eCurrentWritingValue, std::atoi(strText.c_str()));
-			//m_CurrentRoundState.NextPlayerTurn();
+			int value = std::atoi(strText.c_str());
+			value = std::clamp(value, 0, 30);
+			m_CurrentRoundState.bufferScore = std::make_pair(eCurrentWritingValue, value);
 		}
 	}
 }
@@ -466,20 +506,239 @@ void YamScoreBoard::DrawSetUpPhase(float fElapsedTime)
 	
 	//FillRect(vButtonAnchor, vButtonSize, bRectHovered ? olc::GREEN : olc::RED);
 	LaunchButton.Draw();
+}
 
-	bool bIsLaunched = LaunchButton.OnClicked();
-	if(bIsLaunched && !IsTextEntryEnabled())
+void YamScoreBoard::DrawRoundPhase(float fElapsedTime)
+{
+	Clear(olc::VERY_DARK_BLUE);
+
+	//Shortcuts (avoid conflict when typing
+	if (!IsTextEntryEnabled())
+	{
+		if (GetKey(olc::T).bReleased)
+		{
+			m_RenderState.bShowTotals = !m_RenderState.bShowTotals;
+		}
+
+		if (GetKey(olc::H).bReleased)
+		{
+			m_RenderState.bSHowHints = !m_RenderState.bSHowHints;
+		}
+
+		if (GetKey(olc::S).bPressed)
+		{
+			m_GameState.eCurrentPhase = ScoreTable;
+			bIsViewingScores = true;
+		}
+	}
+
+
+	m_vMainAnchor = olc::vi2d((ScreenWidth() / 2) - (m_GameState.GetNumPlayers() + 1) * ScoreValueWidth / 2, ScreenHeight() / 4);
+	//m_vHoveredCell = olc::vi2d(std::clamp(((GetMousePos().x - m_vMainAnchor.x) / ScoreValueWidth) - 1, 0, (int)(m_GameState.GetNumPlayers() - 1)), std::clamp(((GetMousePos().y - m_vMainAnchor.y) / ScoreValueHeight), 0, 14));
+	m_vHoveredCell = olc::vi2d(((GetMousePos().x - m_vMainAnchor.x) / ScoreValueWidth) - 1, ((GetMousePos().y - m_vMainAnchor.y) / ScoreValueHeight));
+	DrawScoreColumn(m_vMainAnchor);
+
+	for (uint8_t iPlayers = 0; iPlayers < m_GameState.GetNumPlayers(); ++iPlayers)
+	{
+
+		std::shared_ptr<Player> pPlayer = m_GameState.arrPlayers[iPlayers];
+
+		olc::vi2d vPlayerAnchor = m_vMainAnchor + olc::vi2d(ScoreValueWidth * (iPlayers + 1), -ScoreValueHeight);
+		pPlayer->SetAnchor(vPlayerAnchor);
+		DrawPlayerColumn(iPlayers, vPlayerAnchor, m_CurrentRoundState.idxCurrentPlayer == iPlayers);
+	}
+
+	NextButton.Draw();
+	TurnCount.Draw();
+	RoundCount.Draw();
+	QuitRoundButton.Draw();
+
+	if (m_GameState.GetNumPlayers() > 1)
+	{
+		DrawBestPlayer();
+	}
+
+	if (!bIsSelectingScore && !IsTextEntryEnabled() && (GetKey(olc::SPACE).bReleased || NextButton.OnClicked()))
+	{
+		m_CurrentRoundState.NextPlayerTurn();
+
+
+		if (m_CurrentRoundState.bIsComplete)
+		{
+			m_GameState.EndRound();
+
+			if (!m_GameState.bIsComplete)
+			{
+
+				uint8_t iNewFirstPlayer = ++m_CurrentRoundState.idxFirstPlayer % m_GameState.GetNumPlayers();
+				m_CurrentRoundState = RoundState();
+				m_CurrentRoundState.bIsComplete = false;
+				m_CurrentRoundState.idxFirstPlayer = iNewFirstPlayer;
+				m_CurrentRoundState.idxCurrentPlayer = m_CurrentRoundState.idxFirstPlayer;
+				m_CurrentRoundState.idxBestPlayer = m_CurrentRoundState.idxFirstPlayer;
+				m_CurrentRoundState.gameState = &m_GameState;
+
+				for (auto player : m_GameState.arrPlayers)
+				{
+					player->InitScoreState();
+				}
+			}
+			m_GameState.eCurrentPhase = ScoreTable;
+		}
+
+		TurnCount.SetText("Tour :\n\n" + std::to_string(m_CurrentRoundState.idxTurn) + " / 12");
+		RoundCount.SetText("Partie :\n\n" + std::to_string(m_GameState.idxRound) + " / " + std::to_string(m_GameState.GetNumRounds()));
+
+
+
+	}
+
+	if (QuitRoundButton.OnClicked() || (!IsTextEntryEnabled() && GetKey(olc::Q).bReleased))
+	{
+		Reset();
+	}
+}
+
+void YamScoreBoard::DrawScoreTable(float fElapsedTime)
+{
+	Clear(olc::VERY_DARK_GREEN);
+
+	if (GetKey(olc::S).bReleased && bIsViewingScores)
 	{
 		m_GameState.eCurrentPhase = Round;
+		bIsViewingScores = false;
 	}
+
+	std::string strMainTittle = "SCORE";
+	olc::vi2d vMainTittleSize = GetTextSize(strMainTittle) * 6;
+	olc::vi2d vMainTittlePos = olc::vi2d((ScreenWidth() / 2) - (vMainTittleSize.x / 2), (ScreenHeight() * .15) - (vMainTittleSize.y / 2));
+
+	DrawString(vMainTittlePos + olc::vi2d(5, 5), strMainTittle, olc::DARK_RED, 6);
+	DrawString(vMainTittlePos, strMainTittle, olc::WHITE, 6);
+
+	int iCurrentRound = bIsViewingScores? m_GameState.idxRound : m_GameState.idxRound - 1; //idxRound has been incremented before drawing this if the round is finished
+	for (int i = 1; i <= m_GameState.GetNumRounds(); ++i)
+	{
+		if (i < iCurrentRound)
+		{
+			FillRect(m_vMainAnchor + olc::vi2d(0, ScoreValueHeight * i), olc::vi2d(ScoreValueWidth, ScoreValueHeight), olc::GREY);
+		}
+
+		if (i == iCurrentRound)
+		{
+			FillRect(m_vMainAnchor + olc::vi2d(0, ScoreValueHeight * i), olc::vi2d(ScoreValueWidth, ScoreValueHeight), olc::DARK_CYAN);
+		}
+		DrawRect(m_vMainAnchor + olc::vi2d(0, ScoreValueHeight * i), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(m_vMainAnchor + olc::vi2d(LiteralOffset.x, LiteralOffset.y + ScoreValueHeight * i), "Partie " + std::to_string(i), i == iCurrentRound ? olc::BLACK : olc::WHITE, LiteralSize);
+	}
+
+	DrawRect(m_vMainAnchor + olc::vi2d(0, ScoreValueHeight * (m_GameState.GetNumRounds() + 1)), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+	DrawString(m_vMainAnchor + olc::vi2d(LiteralOffset.x, LiteralOffset.y + ScoreValueHeight * (m_GameState.GetNumRounds() + 1)), "TOTAL", olc::YELLOW, LiteralSize);
+
+	if (m_GameState.GetNumPlayers() > 1)
+	{
+
+		DrawRect(m_vMainAnchor + olc::vi2d(0, ScoreValueHeight * (m_GameState.GetNumRounds() + 2)), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(m_vMainAnchor + olc::vi2d(LiteralOffset.x, LiteralOffset.y + ScoreValueHeight * (m_GameState.GetNumRounds() + 2)), "Victoires", olc::CYAN, LiteralSize);	
+	}
+
+	for (int idx = 1;  idx < m_GameState.arrPlayers.size() + 1; ++idx)
+	{
+		DrawRect(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx, 0), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx + LiteralOffset.x, LiteralOffset.y), m_GameState.arrPlayers[idx - 1]->GetName(), olc::YELLOW, LiteralSize);
+
+		for (int i = 1; i <= m_GameState.GetNumRounds(); ++i)
+		{
+			if (i < iCurrentRound)
+			{
+				FillRect(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx, ScoreValueHeight * i), olc::vi2d(ScoreValueWidth, ScoreValueHeight), olc::GREY);
+			}
+
+			if (i == iCurrentRound)
+			{
+				FillRect(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx, ScoreValueHeight * i), olc::vi2d(ScoreValueWidth, ScoreValueHeight), olc::DARK_CYAN);
+				uint64_t iCurrentSCore = bIsViewingScores ? ComputeTT(m_GameState.arrPlayers[idx - 1]) : m_GameState.arrPlayers[idx - 1]->GetRoundScores()[i];
+				DrawString(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx + LiteralOffset.x, LiteralOffset.y + ScoreValueHeight * i), std::to_string(iCurrentSCore), olc::BLACK, LiteralSize);
+			}
+			else
+			{
+				DrawString(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx + LiteralOffset.x, LiteralOffset.y + ScoreValueHeight * i), std::to_string(m_GameState.arrPlayers[idx - 1]->GetRoundScores()[i]), olc::WHITE, LiteralSize);
+			}
+
+			DrawRect(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx, ScoreValueHeight * i), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+			
+		}
+
+		uint64_t iTotal = bIsViewingScores ? m_GameState.arrPlayers[idx - 1]->GetTotalScore() + ComputeTT(m_GameState.arrPlayers[idx - 1]) : m_GameState.arrPlayers[idx - 1]->GetTotalScore();
+		DrawRect(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx, ScoreValueHeight * (m_GameState.GetNumRounds() + 1)), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+		DrawString(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx + LiteralOffset.x, LiteralOffset.y + ScoreValueHeight * (m_GameState.GetNumRounds() + 1)), std::to_string(iTotal), olc::YELLOW, LiteralSize);
+
+		if (m_GameState.GetNumPlayers() > 1)
+		{
+
+			DrawRect(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx, ScoreValueHeight * (m_GameState.GetNumRounds() + 2)), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+			DrawString(m_vMainAnchor + olc::vi2d(ScoreValueWidth * idx + LiteralOffset.x, LiteralOffset.y + ScoreValueHeight * (m_GameState.GetNumRounds() + 2)), std::to_string(m_GameState.arrPlayers[idx - 1]->GetVictoryCount()), olc::CYAN, LiteralSize);
+		}
+	}
+
+	if (m_GameState.GetNumPlayers() > 1)
+	{
+
+		int idxBestPlayer = ComputeGlobalBestPlayerIdx();
+		olc::vi2d vCrownPos = m_vMainAnchor + olc::vi2d((idxBestPlayer + 1.5) * ScoreValueWidth - (m_pCrownSprite->width * .1) / 2, -2 * ScoreValueHeight);
+		DrawDecal(vCrownPos, m_pCrownDecal, { 0.1,0.1 });
+	}
+
+	if (!bIsViewingScores)
+	{
+		if (!m_GameState.bIsComplete)
+		{
+			NextRoundButton.Draw();
+			bool bIsNextRoundCliked = NextRoundButton.OnClicked();
+			if (bIsNextRoundCliked || GetKey(olc::SPACE).bReleased)
+			{
+				m_GameState.eCurrentPhase = Round;
+			}
+		}
+
+		
+		EndGameButton.Draw();
+		bool bIsEndGameClicked = EndGameButton.OnClicked();
+
+		if (bIsEndGameClicked || GetKey(olc::Q).bReleased)
+		{
+			m_GameState.eCurrentPhase = End;
+		}
+	}
+}
+
+void YamScoreBoard::DrawEndPhase(float fElapsedTime)
+{
+	Clear(olc::VERY_DARK_MAGENTA);
+
+	std::string strMainTittle = "PARTIE TERMINEE";
+	olc::vi2d vMainTittleSize = GetTextSize(strMainTittle) * 6;
+	olc::vi2d vMainTittlePos = olc::vi2d((ScreenWidth() / 2) - (vMainTittleSize.x / 2), (ScreenHeight() * .15) - (vMainTittleSize.y / 2));
+
+	DrawString(vMainTittlePos + olc::vi2d(5, 5), strMainTittle, olc::BLACK, 6);
+	DrawString(vMainTittlePos, strMainTittle, olc::YELLOW, 6);
+
+	BackToMenuButton.Draw();
+
+	if (BackToMenuButton.OnClicked() || GetKey(olc::SPACE).bReleased)
+	{
+		Reset();
+	}
+
 }
 
 void YamScoreBoard::ClickValueCell()
 {
 	
-	olc::vi2d vBoxAnchor;
-	olc::vi2d vBoxSize;
+	olc::vi2d vBoxAnchor = olc::vi2d(m_vMainAnchor.x + ScoreValueWidth * (m_vHoveredCell.x + 1), m_vMainAnchor.y + ScoreValueHeight * (m_vHoveredCell.y + 1));
+	olc::vi2d vBoxSize = olc::vi2d(ScoreValueWidth, ScoreValueHeight * 7);
 	std::vector<std::string> values;
+	values.emplace_back("");
 
 	switch (eCurrentWritingValue)
 	{
@@ -490,12 +749,7 @@ void YamScoreBoard::ClickValueCell()
 		case Cinq:
 		case Six:
 
-			
-			vBoxAnchor = olc::vi2d(m_vMainAnchor.x + ScoreValueWidth * (m_vHoveredCell.x + 1), m_vMainAnchor.y + ScoreValueHeight * (m_vHoveredCell.y +1));
 			vBoxSize = olc::vi2d(ScoreValueWidth, ScoreValueHeight * 7);
-
-			
-			values.emplace_back("");
 
 			for (int i = 0; i < 6; ++i)
 			{
@@ -516,22 +770,77 @@ void YamScoreBoard::ClickValueCell()
 
 		case Petite_Suite:
 		case Grande_Suite:
-			m_CurrentRoundState.bufferScore = std::make_pair(eCurrentWritingValue, 25);
+			vBoxSize = olc::vi2d(ScoreValueWidth, ScoreValueHeight * 3);
+			values.emplace_back(std::to_string(0));
+			values.emplace_back(std::to_string(25));
+
+			ValueWidget = ListWidget(this, vBoxAnchor, olc::vi2d(ScoreValueWidth, ScoreValueHeight), values);
+			bIsSelectingScore = true;
 			break;
 
 		case Full:
-			m_CurrentRoundState.bufferScore = std::make_pair(eCurrentWritingValue, 30);
+			vBoxSize = olc::vi2d(ScoreValueWidth, ScoreValueHeight * 3);
+			values.emplace_back(std::to_string(0));
+			values.emplace_back(std::to_string(30));
+
+			ValueWidget = ListWidget(this, vBoxAnchor, olc::vi2d(ScoreValueWidth, ScoreValueHeight), values);
+			bIsSelectingScore = true;
 			break;
 		case Carre:
-			m_CurrentRoundState.bufferScore = std::make_pair(eCurrentWritingValue, 40);
+			vBoxSize = olc::vi2d(ScoreValueWidth, ScoreValueHeight * 3);
+			values.emplace_back(std::to_string(0));
+			values.emplace_back(std::to_string(40));
+
+			ValueWidget = ListWidget(this, vBoxAnchor, olc::vi2d(ScoreValueWidth, ScoreValueHeight), values);
+			bIsSelectingScore = true;
 			break;
 		case Yams:
-			m_CurrentRoundState.bufferScore = std::make_pair(eCurrentWritingValue, 50);
+			vBoxSize = olc::vi2d(ScoreValueWidth, ScoreValueHeight * 3);
+			values.emplace_back(std::to_string(0));
+			values.emplace_back(std::to_string(50));
+
+			ValueWidget = ListWidget(this, vBoxAnchor, olc::vi2d(ScoreValueWidth, ScoreValueHeight), values);
+			bIsSelectingScore = true;
 			break;
 
 		default: break;
 	}
 
+}
+
+void YamScoreBoard::Reset()
+{
+	//First player is always here
+	m_GameState = GameState();
+	m_CurrentRoundState = RoundState();
+
+	m_GameState.AddPlayer();
+	m_CurrentRoundState.gameState = &m_GameState;
+}
+
+int YamScoreBoard::ComputeGlobalBestPlayerIdx()
+{
+	uint64_t iBestScore = 0;
+	uint64_t iCurrentScore = 0;
+	int iBestPlayer = 0;
+	for (int i = 0; i < m_GameState.arrPlayers.size(); ++i)
+	{
+		iCurrentScore = bIsViewingScores ? m_GameState.arrPlayers[i]->GetTotalScore() + ComputeTT(m_GameState.arrPlayers[i]) : m_GameState.arrPlayers[i]->GetTotalScore();
+		if (iCurrentScore > iBestScore)
+		{
+			iBestPlayer = i;
+			iBestScore = iCurrentScore;
+		}
+		else if (iCurrentScore == iBestScore)
+		{
+			if (m_GameState.arrPlayers[i]->GetVictoryCount() > m_GameState.arrPlayers[iBestPlayer]->GetVictoryCount())
+			{
+				iBestPlayer = i;
+				iBestScore = iCurrentScore;
+			}
+		}
+	}
+	return iBestPlayer;
 }
 
 void YamScoreBoard::NextPlayerTurn()
@@ -584,8 +893,16 @@ void YamScoreBoard::DrawScoreColumn(olc::vi2d& vPos)
 
 	for (uint8_t e = EValues::Brelan; e != EValues::Name; e++)
 	{
-		DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
-		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), mapScoreLiterals[static_cast<EValues>(e)], olc::WHITE, LiteralSize);
+		if (bIsSelectingScore && e == eCurrentWritingValue)
+		{
+			FillRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight), olc::WHITE);
+			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), mapScoreLiterals[static_cast<EValues>(e)], olc::BLACK, LiteralSize);
+		}
+		else
+		{
+			DrawRect(vPos + olc::vi2d(0, ScoreValueHeight * iRowCounter), olc::vi2d(ScoreValueWidth, ScoreValueHeight));
+			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), mapScoreLiterals[static_cast<EValues>(e)], olc::WHITE, LiteralSize);
+		}
 		iRowCounter++;
 	}
 
@@ -633,6 +950,13 @@ void YamScoreBoard::DrawPlayerColumn(int idxPlayer, olc::vi2d& vPos, bool bIsCur
 	DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), pPlayer->GetName(), nameColor, LiteralSize);
 	iRowCounter++;
 
+	std::map<EValues, uint8_t> mapHints;
+	bool bBonusReachable = false;
+	if (bIsCurrentPlayer && m_RenderState.bSHowHints)
+	{
+		bBonusReachable= ComputeHints(mapHints, idxPlayer);
+	}
+
 	for (uint8_t e = EValues::As; e != EValues::Brelan; e++)
 	{
 		if (bIsCurrentPlayer)
@@ -641,6 +965,46 @@ void YamScoreBoard::DrawPlayerColumn(int idxPlayer, olc::vi2d& vPos, bool bIsCur
 
 		if (pPlayer->GetScoreState()[static_cast<EValues>(e)].first)
 			DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(pPlayer->GetScoreState()[static_cast<EValues>(e)].second), valueColor, LiteralSize);
+		else
+		{
+			if (bIsCurrentPlayer && m_RenderState.bSHowHints && mapHints.contains(static_cast<EValues>(e)))
+			{
+				if (bBonusReachable)
+				{
+
+					olc::Pixel color;
+
+					switch (mapHints[static_cast<EValues>(e)])
+					{
+					case 0:
+					case 1:
+						color = olc::MAGENTA;
+						break;
+					case 2:
+					case 3:
+						color = olc::DARK_MAGENTA;
+						break;
+					case 4:
+					case 5:
+						color = olc::VERY_DARK_MAGENTA;
+						break;
+					case 6:
+						color = olc::VERY_DARK_RED;
+						break;
+					default:
+						break;
+					}
+
+					DrawString(vPos + olc::vi2d(ScoreValueWidth - 4 * LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), std::to_string(mapHints[static_cast<EValues>(e)] * (e +1)), color, LiteralSize);
+				}
+				else
+				{
+					DrawString(vPos + olc::vi2d(ScoreValueWidth - 4 * LiteralOffset.x, ScoreValueHeight * (iRowCounter + .3)), "--", olc::BLACK, LiteralSize);
+				}
+			}
+			
+		}
+		
 		iRowCounter++;
 	}
 
@@ -696,12 +1060,16 @@ void YamScoreBoard::DrawPlayerColumn(int idxPlayer, olc::vi2d& vPos, bool bIsCur
 		iRowCounter++;
 	}
 
-	if (bIsCurrentPlayer && m_vHoveredCell.x == idxPlayer && !bIsSelectingScore && GetMouse(0).bReleased)
+	if (bIsCurrentPlayer && m_vHoveredCell.x == idxPlayer && !bIsSelectingScore && !IsTextEntryEnabled() && GetMouse(0).bReleased)
 	{
-		eCurrentWritingValue = m_vHoveredCell.y < 6 ? static_cast<EValues>(m_vHoveredCell.y) : static_cast<EValues>(m_vHoveredCell.y - 2);
-		if (!pPlayer->GetScoreState()[eCurrentWritingValue].first)
+		//Avoid sub totals cells
+		if (m_vHoveredCell.y != 6 && m_vHoveredCell.y != 7)
 		{
-			ClickValueCell();
+			eCurrentWritingValue = m_vHoveredCell.y < 6 ? static_cast<EValues>(m_vHoveredCell.y) : static_cast<EValues>(m_vHoveredCell.y - 2);
+			if (!pPlayer->GetScoreState()[eCurrentWritingValue].first)
+			{
+				ClickValueCell();
+			}
 		}
 	}
 
@@ -709,7 +1077,7 @@ void YamScoreBoard::DrawPlayerColumn(int idxPlayer, olc::vi2d& vPos, bool bIsCur
 	if (bIsCurrentPlayer && m_CurrentRoundState.bufferScore.first != Name && !(IsTextEntryEnabled() && m_CurrentRoundState.bufferScore.first == Brelan))/*currently writing brelan value */
 	{
 		int iRow = m_CurrentRoundState.bufferScore.first < Brelan ? m_CurrentRoundState.bufferScore.first + 1 : m_CurrentRoundState.bufferScore.first + 3;
-		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * iRow + LiteralOffset.y), std::to_string(m_CurrentRoundState.bufferScore.second), olc::RED, LiteralSize);
+		DrawString(vPos + olc::vi2d(LiteralOffset.x, ScoreValueHeight * iRow + LiteralOffset.y), std::to_string(m_CurrentRoundState.bufferScore.second), olc::YELLOW, LiteralSize);
 	}
 
 	if (bIsCurrentPlayer &&  IsTextEntryEnabled())
@@ -751,7 +1119,7 @@ uint16_t YamScoreBoard::ComputeST1(std::shared_ptr<Player> pPlayer)
 	return score;
 }
 
-uint16_t YamScoreBoard::ComputeTT(std::shared_ptr<Player> pPlayer)
+uint64_t YamScoreBoard::ComputeTT(std::shared_ptr<Player> pPlayer)
 {
 	return ComputeST1(pPlayer) + ComputeST2(pPlayer) + (HasBonus(pPlayer) ? 35 : 0);
 }
@@ -764,6 +1132,136 @@ void YamScoreBoard::DrawBestPlayer()
 	olc::Pixel color = m_CurrentRoundState.idxBestPlayer == m_CurrentRoundState.idxCurrentPlayer ? olc::GREEN : olc::WHITE;
 
 	DrawDecal(vCrownPos, m_pCrownDecal, { 0.1,0.1 }, color);
+}
+
+bool YamScoreBoard::ComputeHints(std::map<EValues, uint8_t>& mapHints, int idxPlayer)
+{
+	mapHints.clear();
+	std::shared_ptr<Player> pPlayer = m_GameState.arrPlayers[idxPlayer];
+
+	int iSumAlreadyScored = 0;
+	int iMostLikelyHint = 0;
+	int iMaxReachable = 0;
+	bool bIsStarted = false;
+
+	for (uint8_t e = EValues::As; e != EValues::Brelan; e++)
+	{
+		if (pPlayer->GetScoreState()[static_cast<EValues>(e)].first)
+		{
+			iSumAlreadyScored += pPlayer->GetScoreState()[static_cast<EValues>(e)].second;
+			bIsStarted = true;
+		}
+		else
+		{
+			//start with most likely combination 
+			mapHints.emplace(std::make_pair(static_cast<EValues>(e), 3));
+			iMostLikelyHint += (e+ 1)* 3;
+			iMaxReachable += (e + 1) * 5;
+		}
+	}
+
+	int iToObtain = 63 - iSumAlreadyScored;
+
+	//Display Target Combination when no value cell has been scored yet 
+	if (!bIsStarted)
+	{
+		return true;
+	}
+
+	//Easy Case, goal is already reached
+	if (iToObtain <= 0)
+	{
+
+		for (auto it = mapHints.begin(); it != mapHints.end(); ++it)
+		{
+			it->second = 0;
+		}
+		/*for (auto pair : mapHints)
+		{
+			pair.second = 0;
+		}* DOESNT WORK, CANT TELL WHY*/
+		return true;
+	}
+	else
+	{
+		//63 points target is unreachable
+		if (iMaxReachable < iToObtain)
+		{
+			return false;
+		}
+		//The only way to score bonus is to mark a Yams on every value
+		else if (iMaxReachable == iToObtain)
+		{
+			for (auto it = mapHints.begin(); it != mapHints.end(); ++it)
+			{
+				it->second = 5;
+			}
+			return true;
+		}
+
+		//Score to obtain match 3xValue combination
+		else if (iToObtain == iMostLikelyHint )
+		{
+			return true;
+		}
+		//Score to obtain is lesser than 3xValue combination
+		else if (iToObtain < iMostLikelyHint)
+		{
+			bool bIsReached = false;
+			while (!bIsReached)
+			{
+				int iSkippedValues = 0;
+				//Start with higher value : if reducing one value doesn't make target score reachable, a decomposition with lower values (and thus a more likely combination) still might exist
+				for (auto it = mapHints.rbegin(); it != mapHints.rend(); ++it)
+				{
+					int iN = it->second  - 1;
+					int iReduce = it->first +1;
+					if (iMostLikelyHint - iReduce < iToObtain)
+					{
+						iSkippedValues++;
+					}
+					else
+					{
+						iMostLikelyHint = iMostLikelyHint - iReduce;
+						it->second = iN;
+					}
+				}
+
+				bIsReached = iSkippedValues == mapHints.size();
+			}
+
+			return true;
+		}
+		else if (iToObtain > iMostLikelyHint)
+		{
+			bool bIsReached = false;
+			while (!bIsReached)
+			{
+				for (auto it = mapHints.begin(); it != mapHints.end(); ++it)
+				{
+					int iN = it->second + 1;
+					int iAugment = it->first +1 ;
+					if (iMostLikelyHint + iAugment >= iToObtain)
+					{
+						bIsReached = true;
+						it->second = iN;
+					}
+				}
+
+				if (!bIsReached)
+				{
+					for (auto it = mapHints.begin(); it != mapHints.end(); ++it)
+					{
+						
+						it->second++;
+						iMostLikelyHint += it->second * (it->first + 1);
+					}
+				}
+			}
+			return true;
+		}
+	}
+	return false;
 }
 
 bool YamScoreBoard::HasBonus(std::shared_ptr<Player> pPlayer)

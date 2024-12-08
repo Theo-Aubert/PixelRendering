@@ -60,14 +60,19 @@ public:
 
 	inline void SetAnchor(olc::vi2d& vAnchor) { m_vAnchor = vAnchor; }
 
-	inline void IncrTotalScore(uint16_t iScoreToAdd) { m_iTotalScore += iScoreToAdd; }
+	inline void IncrTotalScore(uint64_t iScoreToAdd) { m_iTotalScore += iScoreToAdd; }
+	inline void IncrVictoryCount() { m_iVictoryCount++; }
 	inline uint64_t GetTotalScore() const { return m_iTotalScore;}
+	inline uint8_t GetVictoryCount() const {return m_iVictoryCount;}
+	inline std::map<int, uint16_t>& GetRoundScores() { return  m_mapRoundScores; }
 	
 private :
 
 	std::string strName = "NewPlayer";
 	std::map <EValues, std::pair<bool, uint8_t>> m_mapScoreSate;
 
+	std::map<int, uint16_t> m_mapRoundScores;
+	uint8_t  m_iVictoryCount = 0;
 	uint64_t m_iTotalScore = 0;
 
 	olc::vi2d m_vAnchor;
@@ -109,8 +114,11 @@ public:
 	{
 		SetUp,
 		Round,
+		ScoreTable,
 		End
 	};
+
+	//struct RoundState;
 
 	struct GameState
 	{
@@ -118,16 +126,24 @@ public:
 		std::vector<std::shared_ptr<Player>> arrPlayers;
 
 		size_t GetNumPlayers() { return arrPlayers.size();}
-		size_t AddPlayer();// {arrPlayers.emplace_back(std::make_shared<Player>()); return GetNumPlayers(); }
+		size_t AddPlayer();
 		size_t RemovePlayer();
+		void InitGame();
 
 		uint8_t iNumRounds = 1;
 		uint8_t GetNumRounds() { return iNumRounds;}
 		uint8_t IncrNumRounds();
 		uint8_t DecrNumRounds();
 
+		void StartNewRound();
+		void EndRound();
 		uint8_t idxRound = 1;
 		bool bIsComplete = false;
+
+		 //RoundState& refCurrentRound;
+
+	private :
+		void InitRoundScores(std::shared_ptr<Player> pPlayer);
 	};
 
 	struct RoundState
@@ -158,6 +174,7 @@ public:
 		int iNumPlayerValueOffsetY = 0;
 		
 		bool bShowTotals = true;
+		bool bSHowHints = true;
 		olc::vi2d vEntryAnchor;
 
 		std::vector<std::vector<olc::vi2d>> m_matAnchors; //Compute once left top corner for each score cell
@@ -250,19 +267,23 @@ private:
 
 	void DrawSetUpPhase(float fElapsedTime);
 	void DrawRoundPhase(float fElapsedTime);
+	void DrawScoreTable(float fElapsedTime);
 	void DrawEndPhase(float fElapsedTime);
 
 
 	void DrawScoreColumn(olc::vi2d& vPos);
 	void DrawPlayerColumn(int idxPlayer, olc::vi2d& vPos, bool bIsCurrentPlayer);
+	bool ComputeHints(std::map<EValues, uint8_t>& mapHints, int idxPlayer);
 	void ClickValueCell();
 	void NextPlayerTurn();
+	void Reset();
 
 	//Score Computation functions
 	static uint16_t ComputeST1(std::shared_ptr<Player> pPlayer);
 	static bool HasBonus(std::shared_ptr<Player> pPlayer);
 	static uint16_t ComputeST2(std::shared_ptr<Player> pPlayer);
-	static uint16_t ComputeTT(std::shared_ptr<Player> pPlayer);
+	static uint64_t ComputeTT(std::shared_ptr<Player> pPlayer);
+	int ComputeGlobalBestPlayerIdx();
 
 	void DrawBestPlayer();
 
@@ -271,6 +292,7 @@ private:
 	RoundState m_CurrentRoundState;
 	
 	bool bIsSelectingScore = false;
+	bool bIsViewingScores = false;
 	olc::vi2d vEntryAnchor;
 	olc::vi2d m_vHoveredCell;
 	olc::vi2d m_vMainAnchor;
@@ -282,6 +304,10 @@ private:
 	TextButtonWidget NextButton;
 	TextButtonWidget TurnCount;
 	TextButtonWidget RoundCount;
+	TextButtonWidget NextRoundButton;
+	TextButtonWidget EndGameButton;
+	TextButtonWidget BackToMenuButton;
+	TextButtonWidget QuitRoundButton;
 	ListWidget ValueWidget;
 
 	olc::Sprite* m_pCrownSprite = nullptr;
