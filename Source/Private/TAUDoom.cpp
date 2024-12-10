@@ -5,7 +5,7 @@ bool TAUDoom::OnUserCreate()
     olc_UpdateMouseFocus(true);
 
     mCellWorld = new sCell[mapWidth * mapHeight];
-
+    ComputeShadowMap();
     Setup2DMap();
 
     v3DMainAnchor = { 0, 0 };
@@ -54,8 +54,8 @@ bool TAUDoom::OnUserUpdate(float fElapsedTime)
 
 	Clear(olc::BLACK);
 
-    ComputeShadowMap();
-    return true;
+    //DrawSprite(0,0, pShadowMap);
+    //return true;
 
     if (m_bIs3DMainViewport)
     {
@@ -112,17 +112,20 @@ void TAUDoom::Setup2DMap()
 
 void TAUDoom::ComputeShadowMap()
 {
+    pShadowMap = new olc::Sprite(ShadowMapWidth, ShadowMapHeight);
+    SetDrawTarget(pShadowMap);
+    
     std::vector<sEdge> vEdges;
     std::vector<std::tuple<double, double, double>> vecVisibilityPolygonPoints;
 
     ConvertTileMapToPolyMap({ 0,0 }, { mapWidth, mapHeight }, ShadowMapWidth / mapWidth,mapWidth, vEdges);
 
-    for (auto& e : vEdges)
-    {
-        DrawLine(e.start, e.end);
-        FillCircle(e.start, 3, olc::RED);
-        FillCircle(e.end, 3, olc::RED);
-    }
+    // for (auto& e : vEdges)
+    // {
+    //     DrawLine(e.start, e.end);
+    //     FillCircle(e.start, 3, olc::RED);
+    //     FillCircle(e.end, 3, olc::RED);
+    // }
 
 
     if (GetMouse(0).bReleased)
@@ -144,7 +147,9 @@ void TAUDoom::ComputeShadowMap()
         olc::vi2d(get<1>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1]), get<2>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1])), 
         olc::vi2d(get<1>(vecVisibilityPolygonPoints[0]), get<2>(vecVisibilityPolygonPoints[0])));
 
-    FillCircle(lightPos, 5, olc::DARK_YELLOW);
+    //FillCircle(lightPos, 5, olc::DARK_YELLOW);
+
+    SetDrawTarget(nullptr); //release sprite writing 
 }
 
 void TAUDoom::ConvertTileMapToPolyMap(const olc::vi2d& pos, const olc::vi2d& size, double dBlockWidth, int pitch, std::vector<sEdge>& outEdges)
@@ -564,18 +569,44 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
 
         //draw the pixels of the stripe as a vertical line
         DrawLine({ vPos.x + k, drawStart }, { vPos.x + k, drawEnd }, color);
-        //fake shadows
-        if (lineHeight != 0) //if we draw a wall, draw its shadow
+        
+        //compute shadows
+        //for each pixel on the ground, sample its position in the shadowmap
+        int numSamples = (vPos.y + vResolution.y) - (drawEnd +1);
+        //hit point
+        olc::vd2d hitPoint { player.vPosition.x + perpWallDist * vRayDir.x, player.vPosition.y + perpWallDist * vRayDir.y};
+
+        //project hit point and player pos on shadow map pixels
+        olc::vi2d shadowMapPlayer(floor(player.vPosition.x / mapWidth * ShadowMapWidth), floor(player.vPosition.y / mapHeight * ShadowMapHeight));
+        olc::vi2d shadowMapHit(floor(hitPoint.x / mapWidth * ShadowMapWidth), floor(hitPoint.y / mapHeight * ShadowMapHeight));
+        int raylength = (shadowMapHit - shadowMapPlayer).mag();
+        olc::vi2d sampleLine = shadowMapPlayer - shadowMapHit;
+        double step = double(raylength)/numSamples;
+
+        for(int s = 0; s < numSamples; s++)
         {
-            int shadowStart = drawEnd + 1;
-            drawEnd = shadowStart + 0.2 * lineHeight;
-            if(drawEnd >= vPos.y + vResolution.y) drawEnd = vPos.y + vResolution.y - 1;
-
-            DrawLine({ vPos.x + k, shadowStart + 1 }, { vPos.x + k, drawEnd }, olc::VERY_DARK_GREY / 4);
+            olc::vd2d samplePoint = shadowMapPlayer + s * step * sampleLine;
+            if(pShadowMap->GetPixel(int(samplePoint.x),int(samplePoint.y)) == olc::BLACK)
+            {
+                Draw(vPos.x + k , drawEnd + 1 + s, olc::VERY_DARK_GREY / 4);
+            }
+            else
+            {
+                Draw(vPos.x + k , drawEnd + 1 + s, olc::VERY_DARK_GREY);
+            }
         }
-
-        if(drawEnd +1 < vPos.y + vResolution.y)
-            DrawLine({ vPos.x + k, drawEnd + 1 }, { vPos.x + k, vPos.y + vResolution.y - 1 }, olc::VERY_DARK_GREY);
+        
+        // if (lineHeight != 0) //if we draw a wall, draw its shadow
+        // {
+        //     int shadowStart = drawEnd + 1;
+        //     drawEnd = shadowStart + 0.2 * lineHeight;
+        //     if(drawEnd >= vPos.y + vResolution.y) drawEnd = vPos.y + vResolution.y - 1;
+        //
+        //     DrawLine({ vPos.x + k, shadowStart + 1 }, { vPos.x + k, drawEnd }, olc::VERY_DARK_GREY / 4);
+        // }
+        //
+        // if(drawEnd +1 < vPos.y + vResolution.y)
+        //     DrawLine({ vPos.x + k, drawEnd + 1 }, { vPos.x + k, vPos.y + vResolution.y - 1 }, olc::VERY_DARK_GREY);
     }
 }
 
