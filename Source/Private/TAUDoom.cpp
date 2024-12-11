@@ -752,7 +752,7 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
         int tx = (int)(hitPoint.x * double(ShadowMapWidth) / mapWidth);
         int ty = (int)(hitPoint.y * double(ShadowMapHeight) / mapHeight);
 
-        color /= 1.5; // i don't like brightness
+        if (side == 0) color /= 1.5; // i don't like brightness
         if(pShadowMap->GetPixel(ty, tx ) == olc::BLACK
             ||pShadowMap->GetPixel(ty +1, tx ) == olc::BLACK
             ||pShadowMap->GetPixel(ty, tx+1 ) == olc::BLACK

@@ -3,24 +3,64 @@
   "WorkspaceRootPath": "C:\\Dev\\PixelRendering\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\WaveFC.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\WaveFC.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\TAUDoom.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\TAUDoom.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\TAUDoom.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\TAUDoom.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\WaveFC.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\WaveFC.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\ImageProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\ImageProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Externals\\olcPixelGameEngine.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Externals\\olcPixelGameEngine.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\Universe.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\Universe.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\WaveFC.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\WaveFC.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\YamScoreBoard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\YamScoreBoard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\YamScoreBoard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\YamScoreBoard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\Universe.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\Universe.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\DreamCatcher.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\DreamCatcher.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\Shadow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\Shadow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\Shadow.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\Shadow.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\ImageProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\ImageProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\ProceduralAnim.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\ProceduralAnim.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\Constants.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -31,24 +71,8 @@
       "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\ImageProcessor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\Shadow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\Shadow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\SandSimulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\SandSimulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Private\\Universe.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\Universe.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\Universe.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\Universe.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\Shadow.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Public\\Shadow.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\Dev\\PixelRendering\\Source\\Public\\SandSimulation.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -56,6 +80,12 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\PROGRAM FILES\\MICROSOFT VISUAL STUDIO\\2022\\COMMUNITY\\VC\\TOOLS\\MSVC\\14.36.32532\\INCLUDE\\VECTOR||{3B902123-F8A7-4915-9F01-361F908088D0}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\PROGRAM FILES\\MICROSOFT VISUAL STUDIO\\2022\\COMMUNITY\\VC\\TOOLS\\MSVC\\14.36.32532\\INCLUDE\\XSTRING||{3B902123-F8A7-4915-9F01-361F908088D0}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\PROGRAM FILES\\MICROSOFT VISUAL STUDIO\\2022\\COMMUNITY\\VC\\TOOLS\\MSVC\\14.36.32532\\INCLUDE\\XUTILITY||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -65,98 +95,80 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "olcPixelGameEngine.h",
-              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Externals\\olcPixelGameEngine.h",
-              "RelativeDocumentMoniker": "Source\\Externals\\olcPixelGameEngine.h",
-              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Externals\\olcPixelGameEngine.h",
-              "RelativeToolTip": "Source\\Externals\\olcPixelGameEngine.h",
-              "ViewState": "AQIAABIQAAAAAAAAAAAEwCkQAABUAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-06-18T19:52:29.48Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ImageProcessor.cpp",
-              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\ImageProcessor.cpp",
-              "RelativeDocumentMoniker": "Source\\Private\\ImageProcessor.cpp",
-              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\ImageProcessor.cpp",
-              "RelativeToolTip": "Source\\Private\\ImageProcessor.cpp",
-              "ViewState": "AQIAADAAAAAAAAAAAAAAAAQAAAAoAAAA",
+              "DocumentIndex": 0,
+              "Title": "TAUDoom.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\TAUDoom.cpp",
+              "RelativeDocumentMoniker": "Source\\Private\\TAUDoom.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\TAUDoom.cpp",
+              "RelativeToolTip": "Source\\Private\\TAUDoom.cpp",
+              "ViewState": "AQIAAMoBAAAAAAAAAAAwwPABAAAmAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-06-18T19:03:36.241Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ImageProcessor.h",
-              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\ImageProcessor.h",
-              "RelativeDocumentMoniker": "Source\\Public\\ImageProcessor.h",
-              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Public\\ImageProcessor.h",
-              "RelativeToolTip": "Source\\Public\\ImageProcessor.h",
-              "ViewState": "AQIAAEgAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-06-18T19:02:51.967Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "SandSimulation.cpp",
-              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\SandSimulation.cpp",
-              "RelativeDocumentMoniker": "Source\\Private\\SandSimulation.cpp",
-              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\SandSimulation.cpp",
-              "RelativeToolTip": "Source\\Private\\SandSimulation.cpp",
-              "ViewState": "AQIAABsAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-06-18T18:30:50.101Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Shadow.cpp",
-              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\Shadow.cpp",
-              "RelativeDocumentMoniker": "Source\\Private\\Shadow.cpp",
-              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\Shadow.cpp",
-              "RelativeToolTip": "Source\\Private\\Shadow.cpp",
-              "ViewState": "AQIAAAYAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-06-18T18:29:14.293Z",
+              "WhenOpened": "2024-12-06T23:09:46.314Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "TAUDoom.h",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\TAUDoom.h",
+              "RelativeDocumentMoniker": "Source\\Public\\TAUDoom.h",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Public\\TAUDoom.h",
+              "RelativeToolTip": "Source\\Public\\TAUDoom.h",
+              "ViewState": "AQIAAGoAAAAAAAAAAAAgwJAAAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-12-06T23:09:31.002Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "YamScoreBoard.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\YamScoreBoard.cpp",
+              "RelativeDocumentMoniker": "Source\\Private\\YamScoreBoard.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\YamScoreBoard.cpp",
+              "RelativeToolTip": "Source\\Private\\YamScoreBoard.cpp",
+              "ViewState": "AQIAABEAAAAAAAAAAAAAAGMDAAB1AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-08-05T19:38:23.335Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Shadow.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\Shadow.cpp",
+              "RelativeDocumentMoniker": "Source\\Private\\Shadow.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\Shadow.cpp",
+              "RelativeToolTip": "Source\\Private\\Shadow.cpp",
+              "ViewState": "AQIAAL0AAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-06-18T18:29:14.293Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "WaveFC.h",
               "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\WaveFC.h",
               "RelativeDocumentMoniker": "Source\\Public\\WaveFC.h",
               "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Public\\WaveFC.h",
               "RelativeToolTip": "Source\\Public\\WaveFC.h",
-              "ViewState": "AQIAAD8AAAAAAAAAAAAAAE4AAAAMAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-06-10T18:31:10.841Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-06-10T18:31:10.841Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "WaveFC.cpp",
               "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\WaveFC.cpp",
               "RelativeDocumentMoniker": "Source\\Private\\WaveFC.cpp",
               "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\WaveFC.cpp",
               "RelativeToolTip": "Source\\Private\\WaveFC.cpp",
-              "ViewState": "AQIAAMkAAAAAAAAAAAAUwN8AAABSAAAA",
+              "ViewState": "AQIAAO8AAAAAAAAAAAAgwBMBAAAWAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-06-10T18:32:08.186Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-06-10T18:32:08.186Z"
             },
             {
               "$type": "Document",
@@ -172,7 +184,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 19,
               "Title": "vector",
               "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\vector",
               "RelativeDocumentMoniker": "..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\vector",
@@ -184,44 +196,151 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Universe.cpp",
-              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\Universe.cpp",
-              "RelativeDocumentMoniker": "Source\\Private\\Universe.cpp",
-              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\Universe.cpp",
-              "RelativeToolTip": "Source\\Private\\Universe.cpp",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAPcBAAAfAAAA",
+              "DocumentIndex": 12,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\main.cpp",
+              "RelativeDocumentMoniker": "Source\\main.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\main.cpp",
+              "RelativeToolTip": "Source\\main.cpp",
+              "ViewState": "AQIAABIAAAAAAAAAAAAAAI0CAAAZAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-04-22T22:55:31.339Z"
+              "WhenOpened": "2024-03-13T21:26:57.457Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
+              "Title": "ImageProcessor.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\ImageProcessor.cpp",
+              "RelativeDocumentMoniker": "Source\\Private\\ImageProcessor.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\ImageProcessor.cpp",
+              "RelativeToolTip": "Source\\Private\\ImageProcessor.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-06-18T19:03:36.241Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "YamScoreBoard.h",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\YamScoreBoard.h",
+              "RelativeDocumentMoniker": "Source\\Public\\YamScoreBoard.h",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Public\\YamScoreBoard.h",
+              "RelativeToolTip": "Source\\Public\\YamScoreBoard.h",
+              "ViewState": "AQIAAAMBAAAAAAAAAAAgwC4BAAARAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-08-05T19:38:21.745Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ImageProcessor.h",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\ImageProcessor.h",
+              "RelativeDocumentMoniker": "Source\\Public\\ImageProcessor.h",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Public\\ImageProcessor.h",
+              "RelativeToolTip": "Source\\Public\\ImageProcessor.h",
+              "ViewState": "AQIAAEgAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-06-18T19:02:51.967Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "olcPixelGameEngine.h",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Externals\\olcPixelGameEngine.h",
+              "RelativeDocumentMoniker": "Source\\Externals\\olcPixelGameEngine.h",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Externals\\olcPixelGameEngine.h",
+              "RelativeToolTip": "Source\\Externals\\olcPixelGameEngine.h",
+              "ViewState": "AQIAAI4CAAAAAAAAAAAgwN8CAAAiAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-06-18T19:52:29.48Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "xstring",
+              "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xstring",
+              "RelativeDocumentMoniker": "..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xstring",
+              "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xstring",
+              "RelativeToolTip": "..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xstring",
+              "ViewState": "AQIAAM4IAAAAAAAAAAAiwOEIAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-08-08T20:13:46.539Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "SandSimulation.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\SandSimulation.cpp",
+              "RelativeDocumentMoniker": "Source\\Private\\SandSimulation.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\SandSimulation.cpp",
+              "RelativeToolTip": "Source\\Private\\SandSimulation.cpp",
+              "ViewState": "AQIAABsAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-06-18T18:30:50.101Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "Universe.h",
               "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\Universe.h",
               "RelativeDocumentMoniker": "Source\\Public\\Universe.h",
               "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Public\\Universe.h",
               "RelativeToolTip": "Source\\Public\\Universe.h",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAGAAAAASAAAA",
+              "ViewState": "AQIAAJ8AAAAAAAAAAAAAAGAAAAASAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-03-13T21:29:21.101Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "main.cpp",
-              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\main.cpp",
-              "RelativeDocumentMoniker": "Source\\main.cpp",
-              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\main.cpp",
-              "RelativeToolTip": "Source\\main.cpp",
-              "ViewState": "AQIAAIsCAAAAAAAAAAAAAJcCAAAPAAAA",
+              "Title": "Universe.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\Universe.cpp",
+              "RelativeDocumentMoniker": "Source\\Private\\Universe.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\Universe.cpp",
+              "RelativeToolTip": "Source\\Private\\Universe.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAPcBAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-03-13T21:26:57.457Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-04-22T22:55:31.339Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 9,
+              "Title": "DreamCatcher.h",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\DreamCatcher.h",
+              "RelativeDocumentMoniker": "Source\\Public\\DreamCatcher.h",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Public\\DreamCatcher.h",
+              "RelativeToolTip": "Source\\Public\\DreamCatcher.h",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-12-07T12:27:48.306Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "xutility",
+              "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xutility",
+              "RelativeDocumentMoniker": "..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xutility",
+              "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xutility",
+              "RelativeToolTip": "..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include\\xutility",
+              "ViewState": "AQIAAOoAAAAAAAAAAAAvwPoAAAAwAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-08-10T17:03:17.335Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "ProceduralAnim.cpp",
+              "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Private\\ProceduralAnim.cpp",
+              "RelativeDocumentMoniker": "Source\\Private\\ProceduralAnim.cpp",
+              "ToolTip": "C:\\Dev\\PixelRendering\\Source\\Private\\ProceduralAnim.cpp",
+              "RelativeToolTip": "Source\\Private\\ProceduralAnim.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-08-08T20:54:57.549Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
               "Title": "SandSimulation.h",
               "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\SandSimulation.h",
               "RelativeDocumentMoniker": "Source\\Public\\SandSimulation.h",
@@ -233,7 +352,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 15,
               "Title": "Constants.h",
               "DocumentMoniker": "C:\\Dev\\PixelRendering\\Source\\Public\\Constants.h",
               "RelativeDocumentMoniker": "Source\\Public\\Constants.h",
@@ -241,8 +360,7 @@
               "RelativeToolTip": "Source\\Public\\Constants.h",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-03-13T21:26:35.517Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-03-13T21:26:35.517Z"
             }
           ]
         }
