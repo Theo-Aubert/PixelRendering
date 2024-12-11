@@ -12,8 +12,8 @@ constexpr double d3DDisplayRatio = 16. / 9.;
 
 constexpr double cellSize = 1.; // world unit size 
 
-constexpr int ShadowMapWidth = 512;
-constexpr int ShadowMapHeight = 512;
+constexpr int ShadowMapWidth = 4 *480;
+constexpr int ShadowMapHeight = 4*480;
 
 struct TAUPlayer
 {
@@ -94,6 +94,7 @@ private:
 	void DrawPlayer();
 
 	void Render2DMap(const olc::vi2d& vPos, const olc::vi2d& vResolution, bool bShowMapSprite);
+	void RenderShadowMap(const olc::vi2d& vPos, const olc::vi2d& vResolution, bool bShowMapSprite);
 
 	void RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution);
 
@@ -142,7 +143,8 @@ private:
 	};
 
 	sCell* mCellWorld = nullptr;
-	olc::vi2d lightPos = olc::vi2d(240., 240.);
+	olc::vi2d lightPos = olc::vi2d(4* 240., 4*240.);
+	double m_dShadowBias = 0.0;
 
 
 	std::vector<DirectionalLight*> m_arrDirectionalLights;
