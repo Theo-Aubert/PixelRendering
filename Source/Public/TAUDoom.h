@@ -90,6 +90,7 @@ private:
 	void ComputeShadowMap();
 	void ConvertTileMapToPolyMap(const olc::vi2d& pos, const olc::vi2d& size, double dBlockWidth, int pitch, std::vector<sEdge>& outEdges);
 	void CalculateVisibilityPolygon(olc::vd2d pos, double dRadius, const std::vector<sEdge>& Edges, std::vector<std::tuple<double, double, double>>& outVisibilityPolygonPoints);
+	void CalculateDirectionalShadowPolygon(const DirectionalLight& light, const std::vector<sEdge>& Edges, std::vector<olc::vd2d>& outShadowPolygonPoints);
 
 	void DrawPlayer();
 
@@ -100,6 +101,7 @@ private:
 
 	int m_iDebugRays = 32;
 	std::set<olc::vd2d> sHitPoints;
+	std::vector<olc::vd2d> vShadowSamples;
 
 	TAUPlayer player;
 
