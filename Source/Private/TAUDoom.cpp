@@ -128,6 +128,7 @@ void TAUDoom::ComputeShadowMap()
     
     std::vector<sEdge> vEdges;
     std::vector<std::tuple<double, double, double>> vecVisibilityPolygonPoints;
+    std::vector<olc::vd2d> vecShadowPolygonPoints;
 
     ConvertTileMapToPolyMap({ 0,0 }, { mapWidth, mapHeight }, ShadowMapWidth / mapWidth,mapWidth, vEdges);
 
@@ -137,31 +138,40 @@ void TAUDoom::ComputeShadowMap()
     //     FillCircle(e.start, 3, olc::RED);
     //     FillCircle(e.end, 3, olc::RED);
     // }
-    
-    CalculateVisibilityPolygon(lightPos, 1000., vEdges, vecVisibilityPolygonPoints);
 
-    for (int i = 0; i < vecVisibilityPolygonPoints.size() - 1; i++)
+    //Directional Light
+    DirectionalLight light = { olc::vd2d(.5,.5), .5, olc::YELLOW};
+    CalculateDirectionalShadowPolygon(light, vEdges, vecShadowPolygonPoints);
+    for (int i = 0; i < vecShadowPolygonPoints.size(); i+=4)
     {
-        FillTriangle(lightPos, 
-            olc::vi2d(get<1>(vecVisibilityPolygonPoints[i]), get<2>(vecVisibilityPolygonPoints[i])), 
-            olc::vi2d(get<1>(vecVisibilityPolygonPoints[i +1]), get<2>(vecVisibilityPolygonPoints[i +1])));
+        
     }
 
-    FillTriangle(lightPos, 
-        olc::vi2d(get<1>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1]), get<2>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1])), 
-        olc::vi2d(get<1>(vecVisibilityPolygonPoints[0]), get<2>(vecVisibilityPolygonPoints[0])));
-
-    //FillCircle(lightPos, 5, olc::DARK_YELLOW);
-
-    //clear front faces to avoid shadow acne
-     for(int x = 0; x < mapWidth; x++)
-         for(int y = 0; y < mapHeight; y++)
-         {
-             if(worldMap[x][y] > 0)
-             {
-                 FillRect(y * ShadowMapHeight / mapHeight,x * ShadowMapWidth / mapWidth,  ShadowMapHeight / mapHeight, ShadowMapWidth / mapWidth);
-             }
-         }
+    //Point Light
+    // CalculateVisibilityPolygon(lightPos, 1., vEdges, vecVisibilityPolygonPoints);
+    //
+    // for (int i = 0; i < vecVisibilityPolygonPoints.size() - 1; i++)
+    // {
+    //     FillTriangle(lightPos, 
+    //         olc::vi2d(get<1>(vecVisibilityPolygonPoints[i]), get<2>(vecVisibilityPolygonPoints[i])), 
+    //         olc::vi2d(get<1>(vecVisibilityPolygonPoints[i +1]), get<2>(vecVisibilityPolygonPoints[i +1])));
+    // }
+    //
+    // FillTriangle(lightPos, 
+    //     olc::vi2d(get<1>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1]), get<2>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1])), 
+    //     olc::vi2d(get<1>(vecVisibilityPolygonPoints[0]), get<2>(vecVisibilityPolygonPoints[0])));
+    //
+    // //FillCircle(lightPos, 5, olc::DARK_YELLOW);
+    //
+    // //clear front faces to avoid shadow acne
+    //  for(int x = 0; x < mapWidth; x++)
+    //      for(int y = 0; y < mapHeight; y++)
+    //      {
+    //          if(worldMap[x][y] > 0)
+    //          {
+    //              FillRect(y * ShadowMapHeight / mapHeight,x * ShadowMapWidth / mapWidth,  ShadowMapHeight / mapHeight, ShadowMapWidth / mapWidth);
+    //          }
+    //      }
 
     SetDrawTarget(nullptr); //release sprite writing 
 }
@@ -470,6 +480,47 @@ void TAUDoom::CalculateVisibilityPolygon(olc::vd2d pos, double dRadius, const st
 
 }
 
+void TAUDoom::CalculateDirectionalShadowPolygon(const DirectionalLight& light, const std::vector<sEdge>& Edges,
+    std::vector<olc::vd2d>& outShadowPolygonPoints)
+{
+    outShadowPolygonPoints.clear();
+
+    double invMag = 1. / sqrt(light.pos.mag2() + light.height * light.height);
+
+    double vNormLight[3] = {light.pos.x * invMag, light.pos.y * invMag, light.height * invMag };
+    
+    if(vNormLight[2] == 0.)
+    {
+        //@todo : project on edges of shadow map
+    }
+    else
+    {
+        
+        //project edges on ground along side directional vector
+        //Assumption on wall height = 1. is done here
+        double wallHeight = 1.;
+        
+        auto lineIntersection = [&vNormLight, &wallHeight](olc::vd2d point)-> olc::vd2d
+        {
+            //don't handle colinear case here, it is dealt with above check
+            // double t = (planeNormal.dot(planePoint) - planeNormal.dot(linePoint)) / planeNormal.dot(lineDirection.normalize());
+            // double t = ([0,0,1].dot([point.x, point.y, 0) - [0,0,1].dot(point.x, point.y, wall height)) / [0,0,1].dot(vNormLight);
+            // double t = (0 - wallheight)) / vNormLight.z);
+            double t = -wallHeight / vNormLight[2];
+            return point + olc::vd2d(vNormLight[0] * t, vNormLight[1] * t);
+        };
+
+        for(const auto& edge : Edges)
+        {
+            
+            outShadowPolygonPoints.push_back(edge.start);
+            outShadowPolygonPoints.push_back(lineIntersection(edge.start));
+            outShadowPolygonPoints.push_back(lineIntersection(edge.end));
+            outShadowPolygonPoints.push_back(edge.end);
+        }
+    }
+}
+
 void TAUDoom::DrawPlayer()
 {
 
@@ -521,6 +572,11 @@ void TAUDoom::Render2DMap(const olc::vi2d& vPos, const olc::vi2d& vResolution, b
         FillCircle(vPos + olc::vi2d(int(point.y * mapScaleFactor.x), int(point.x * mapScaleFactor.y)), mapScaleFactor.x / 8, olc::DARK_YELLOW);
     }
 
+    for (auto shadowSample : vShadowSamples)
+    {
+        FillCircle(vPos + olc::vi2d(int(shadowSample.y * mapScaleFactor.x), int(shadowSample.x * mapScaleFactor.y)), mapScaleFactor.x / 4, olc::DARK_RED);
+    }
+
 }
 
 void TAUDoom::RenderShadowMap(const olc::vi2d& vPos, const olc::vi2d& vResolution, bool bShowMapSprite)
@@ -556,77 +612,85 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
     //return true;
     int iDebugDisplayStep = vResolution.x / m_iDebugRays;
     sHitPoints.clear();
+    vShadowSamples.clear();
     
-    //floor casting
-    for(int y = vResolution.y /2 + 1; y < vResolution.y; y++)
-    {
-        // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-        olc::vd2d vRayDir0;
-        vRayDir0.x = cos(player.dLookAtAngle + (player.dFoV / 2) * 1);
-        vRayDir0.y = sin(player.dLookAtAngle + (player.dFoV / 2) * 1);
-
-        olc::vd2d vRayDir1;
-        vRayDir1.x = cos(player.dLookAtAngle + (player.dFoV / 2) * -1);
-        vRayDir1.y = sin(player.dLookAtAngle + (player.dFoV / 2) * -1);
-
-        // Current y position compared to the center of the screen (the horizon)
-        int p = y - vResolution.y / 2;
-
-        // Vertical position of the camera.
-        double posZ = 0.5 * vResolution.y;
-
-        // Horizontal distance from the camera to the floor for the current row.
-        // 0.5 is the z position exactly in the middle between floor and ceiling.
-        double rowDistance = posZ / p;
-
-        // calculate the real world step vector we have to add for each x (parallel to camera plane)
-        // adding step by step avoids multiplications with a weight in the inner loop
-        double floorStepX = rowDistance * (vRayDir1.x - vRayDir0.x) / vResolution.x;
-        double floorStepY = rowDistance * (vRayDir1.y - vRayDir0.y) / vResolution.x;
-
-        // real world coordinates of the leftmost column. This will be updated as we step to the right.
-        double floorX = player.vPosition.x + rowDistance * vRayDir0.x;
-        double floorY = player.vPosition.y + rowDistance * vRayDir0.y;
-
-        for(int x = 0; x < vResolution.x; ++x)
-        {
-            // the cell coord is simply got from the integer parts of floorX and floorY
-            int cellX = (int)(floorX);
-            int cellY = (int)(floorY);
-            
-            int tx = (int)(floorX * double(ShadowMapWidth) / mapWidth);
-            int ty = (int)(floorY * double(ShadowMapHeight) / mapHeight);
-            
-            // get the texture coordinate from the fractional part
-            // int tx = (int)( ShadowMapWidth * (floorX - cellX)) & (ShadowMapWidth - 1);
-            // int ty = (int)(ShadowMapHeight * (floorY - cellY)) & (ShadowMapHeight - 1);
-            
-            floorX += floorStepX;
-            floorY += floorStepY;
-
-            // choose texture and draw the pixel
-            int floorTexture = 3;
-            int ceilingTexture = 6;
-            olc::Pixel color;
-
-            //floor
-            if(pShadowMap->GetPixel(ty, tx) != olc::BLACK)
-                Draw(x,y, olc::VERY_DARK_GREY);
-            
-            //ceil
-            Draw(x,vResolution.y - y - 1, olc::VERY_DARK_BLUE);
-
-            // floor
-            // color = texture[floorTexture][texWidth * ty + tx];
-            // color = (color >> 1) & 8355711; // make a bit darker
-            // buffer[y][x] = color;
-
-            //ceiling (symmetrical, at screenHeight - y - 1 instead of y)
-            // color = texture[ceilingTexture][texWidth * ty + tx];
-            // color = (color >> 1) & 8355711; // make a bit darker
-            // buffer[screenHeight - y - 1][x] = color;
-        }
-    }
+    //floor casting (horizontal version ) not suitable for shadow casting
+    // for(int y = vResolution.y /2 + 1; y < vResolution.y; y++)
+    // {
+    //     // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+    //     olc::vd2d vRayDir0;
+    //     vRayDir0.x = cos(player.dLookAtAngle + (player.dFoV / 2) * 1);
+    //     vRayDir0.y = sin(player.dLookAtAngle + (player.dFoV / 2) * 1);
+    //
+    //     olc::vd2d vRayDir1;
+    //     vRayDir1.x = cos(player.dLookAtAngle + (player.dFoV / 2) * -1);
+    //     vRayDir1.y = sin(player.dLookAtAngle + (player.dFoV / 2) * -1);
+    //
+    //     // Current y position compared to the center of the screen (the horizon)
+    //     double p = double(y) - vResolution.y / 2.;
+    //
+    //     // Vertical position of the camera.
+    //     double posZ = 0.5 * vResolution.y;
+    //
+    //     // Horizontal distance from the camera to the floor for the current row.
+    //     // 0.5 is the z position exactly in the middle between floor and ceiling.
+    //     double rowDistance = sqrt(posZ * posZ + p*p);// / p ;
+    //
+    //     // calculate the real world step vector we have to add for each x (parallel to camera plane)
+    //     // adding step by step avoids multiplications with a weight in the inner loop
+    //     double floorStepX = rowDistance * (vRayDir1.x - vRayDir0.x) / vResolution.x;
+    //     double floorStepY = rowDistance * (vRayDir1.y - vRayDir0.y) / vResolution.x;
+    //
+    //     // real world coordinates of the leftmost column. This will be updated as we step to the right.
+    //     double floorX = player.vPosition.x + rowDistance * vRayDir0.x;
+    //     double floorY = player.vPosition.y + rowDistance * vRayDir0.y;
+    //
+    //     double floorX1 = player.vPosition.x + rowDistance * vRayDir1.x;
+    //     double floorY1 = player.vPosition.y + rowDistance * vRayDir1.y;
+    //
+    //     vShadowSamples.push_back(olc::vd2d(floorX, floorY));
+    //     vShadowSamples.push_back(olc::vd2d(floorX1, floorY1));
+    //
+    //     for(int x = 0; x < vResolution.x; ++x)
+    //     {
+    //         // the cell coord is simply got from the integer parts of floorX and floorY
+    //         int cellX = (int)(floorX);
+    //         int cellY = (int)(floorY);
+    //         
+    //         int tx = (int)(floorX * double(ShadowMapWidth) / mapWidth);
+    //         int ty = (int)(floorY * double(ShadowMapHeight) / mapHeight);
+    //         
+    //         
+    //         // get the texture coordinate from the fractional part
+    //         // int tx = (int)( ShadowMapWidth * (floorX - cellX)) & (ShadowMapWidth - 1);
+    //         // int ty = (int)(ShadowMapHeight * (floorY - cellY)) & (ShadowMapHeight - 1);
+    //         
+    //         floorX += floorStepX;
+    //         floorY += floorStepY;
+    //
+    //         // choose texture and draw the pixel
+    //         int floorTexture = 3;
+    //         int ceilingTexture = 6;
+    //         olc::Pixel color;
+    //
+    //         //floor
+    //         if(pShadowMap->GetPixel(ty, tx) != olc::BLACK)
+    //             Draw(x,y, olc::VERY_DARK_GREY);
+    //         
+    //         //ceil
+    //         Draw(x,vResolution.y - y - 1, olc::VERY_DARK_BLUE);
+    //
+    //         // floor
+    //         // color = texture[floorTexture][texWidth * ty + tx];
+    //         // color = (color >> 1) & 8355711; // make a bit darker
+    //         // buffer[y][x] = color;
+    //
+    //         //ceiling (symmetrical, at screenHeight - y - 1 instead of y)
+    //         // color = texture[ceilingTexture][texWidth * ty + tx];
+    //         // color = (color >> 1) & 8355711; // make a bit darker
+    //         // buffer[screenHeight - y - 1][x] = color;
+    //     }
+    // }
 
     //return;
     //wall casting 
@@ -748,11 +812,17 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
         default: color = olc::YELLOW; break; //yellow
         }
 
+        //calculate value of wallX
+        double wallX; //where exactly the wall was hit
+        if(side == 0) wallX = player.vPosition.y + perpWallDist * vRayDir.y;
+        else          wallX = player.vPosition.x + perpWallDist * vRayDir.x;
+        wallX -= floor((wallX));
+
         olc::vd2d hitPoint { player.vPosition.x + perpWallDist * vRayDir.x, player.vPosition.y + perpWallDist * vRayDir.y};
         int tx = (int)(hitPoint.x * double(ShadowMapWidth) / mapWidth);
         int ty = (int)(hitPoint.y * double(ShadowMapHeight) / mapHeight);
 
-        color /= 1.5; // i don't like brightness
+        if (side == 0) color /= 1.5; // i don't like brightness
         if(pShadowMap->GetPixel(ty, tx ) == olc::BLACK
             ||pShadowMap->GetPixel(ty +1, tx ) == olc::BLACK
             ||pShadowMap->GetPixel(ty, tx+1 ) == olc::BLACK
@@ -766,6 +836,64 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
         
         //draw the pixels of the stripe as a vertical line
        DrawLine({ vPos.x + k, drawStart }, { vPos.x + k, drawEnd }, color);
+
+        //FLOOR CASTING (vertical version, directly after drawing the vertical wall stripe for the current x)
+        double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
+
+        //4 different wall directions possible
+        if(side == 0 && vRayDir.x > 0)
+        {
+            floorXWall = vMapPos.x;
+            floorYWall = vMapPos.y + wallX;
+        }
+        else if(side == 0 && vRayDir.x < 0)
+        {
+            floorXWall = vMapPos.x + 1.0;
+            floorYWall = vMapPos.y + wallX;
+        }
+        else if(side == 1 && vRayDir.y > 0)
+        {
+            floorXWall = vMapPos.x + wallX;
+            floorYWall = vMapPos.y;
+        }
+        else
+        {
+            floorXWall = vMapPos.x + wallX;
+            floorYWall = vMapPos.y + 1.0;
+        }
+
+        double distWall, distPlayer, currentDist;
+
+        distWall = perpWallDist;
+        distPlayer = 0.0;
+
+        if (drawEnd < 0) drawEnd = vResolution.y; //becomes < 0 when the integer overflows
+
+        //draw the floor from drawEnd to the bottom of the screen
+        for(int y = drawEnd + 1; y < vResolution.y; y++)
+        {
+            currentDist = vResolution.y / (2.0 * y - vResolution.y); //you could make a small lookup table for this instead
+
+            double weight = (currentDist - distPlayer) / (distWall - distPlayer);
+
+            double currentFloorX = weight * floorXWall + (1.0 - weight) * player.vPosition.x;
+            double currentFloorY = weight * floorYWall + (1.0 - weight) * player.vPosition.y;
+            
+            int tx = (int)(currentFloorX * double(ShadowMapWidth) / mapWidth);
+            int ty = (int)(currentFloorY * double(ShadowMapHeight) / mapHeight);
+
+            //floor
+            if(pShadowMap->GetPixel(ty, tx) == olc::BLACK)
+            {
+                Draw(vPos.x + k,y -1, olc::VERY_DARK_GREY /4 );
+                Draw(vPos.x + k,y, olc::VERY_DARK_GREY /4 );
+            }
+            else
+                Draw(vPos.x + k,y, olc::VERY_DARK_GREY);
+            
+            //ceil
+            Draw(vPos.x + k,vResolution.y - y - 1, olc::VERY_DARK_BLUE);
+        }
        
         
         if(k % iDebugDisplayStep)
