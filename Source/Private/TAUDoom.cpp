@@ -124,7 +124,7 @@ void TAUDoom::ComputeShadowMap()
 {
     pShadowMap = new olc::Sprite(ShadowMapWidth, ShadowMapHeight);
     SetDrawTarget(pShadowMap);
-    Clear(olc::BLACK);
+    Clear(olc::WHITE);
     
     std::vector<sEdge> vEdges;
     std::vector<std::tuple<double, double, double>> vecVisibilityPolygonPoints;
@@ -144,7 +144,26 @@ void TAUDoom::ComputeShadowMap()
     CalculateDirectionalShadowPolygon(light, vEdges, vecShadowPolygonPoints);
     for (int i = 0; i < vecShadowPolygonPoints.size(); i+=4)
     {
-        
+        //draw trapze
+        olc::vi2d delta = vecShadowPolygonPoints[i+3] - vecShadowPolygonPoints[i];
+
+        std::cout << delta << '\n';
+
+        if (abs(delta.y) > 0)
+            for (int y = 0; y < abs(delta.y-1); y++)
+            {
+                DrawLine(olc::vi2d(vecShadowPolygonPoints[i].x + (double(y) / delta.y) * delta.x, vecShadowPolygonPoints[i].y + y), olc::vi2d(vecShadowPolygonPoints[i+1].x + (double(y) / delta.y) * delta.x, vecShadowPolygonPoints[i+1].y + y), olc::BLACK);
+            }
+        else if(abs(delta.x) > 0)
+            for (int x = 0; x < abs(delta.x); x++)
+            {
+                DrawLine(olc::vi2d(vecShadowPolygonPoints[i].x + x, vecShadowPolygonPoints[i].y + (double(x) / delta.x) * delta.y), olc::vi2d(vecShadowPolygonPoints[i+1].x + x, vecShadowPolygonPoints[i+1].y + (double(x) / delta.x) * delta.y), olc::BLACK);
+            }
+
+        /*DrawLine(olc::vi2d(vecShadowPolygonPoints[i]), olc::vi2d(vecShadowPolygonPoints[i+1]));
+        DrawLine(olc::vi2d(vecShadowPolygonPoints [i+1]), olc::vi2d(vecShadowPolygonPoints[i+2]));
+        DrawLine(olc::vi2d(vecShadowPolygonPoints [i+2]), olc::vi2d(vecShadowPolygonPoints[i+3]));
+        DrawLine(olc::vi2d(vecShadowPolygonPoints [i+3]), olc::vi2d( vecShadowPolygonPoints[i]));*/
     }
 
     //Point Light
@@ -163,15 +182,15 @@ void TAUDoom::ComputeShadowMap()
     //
     // //FillCircle(lightPos, 5, olc::DARK_YELLOW);
     //
-    // //clear front faces to avoid shadow acne
-    //  for(int x = 0; x < mapWidth; x++)
-    //      for(int y = 0; y < mapHeight; y++)
-    //      {
-    //          if(worldMap[x][y] > 0)
-    //          {
-    //              FillRect(y * ShadowMapHeight / mapHeight,x * ShadowMapWidth / mapWidth,  ShadowMapHeight / mapHeight, ShadowMapWidth / mapWidth);
-    //          }
-    //      }
+    //clear front faces to avoid shadow acne
+     for(int x = 0; x < mapWidth; x++)
+         for(int y = 0; y < mapHeight; y++)
+         {
+             if(worldMap[x][y] > 0)
+             {
+                 FillRect(y * ShadowMapHeight / mapHeight,x * ShadowMapWidth / mapWidth,  ShadowMapHeight / mapHeight, ShadowMapWidth / mapWidth);
+             }
+         }
 
     SetDrawTarget(nullptr); //release sprite writing 
 }
@@ -498,7 +517,7 @@ void TAUDoom::CalculateDirectionalShadowPolygon(const DirectionalLight& light, c
         
         //project edges on ground along side directional vector
         //Assumption on wall height = 1. is done here
-        double wallHeight = 1.;
+        double wallHeight = double(ShadowMapWidth) / mapWidth;
         
         auto lineIntersection = [&vNormLight, &wallHeight](olc::vd2d point)-> olc::vd2d
         {
@@ -512,11 +531,16 @@ void TAUDoom::CalculateDirectionalShadowPolygon(const DirectionalLight& light, c
 
         for(const auto& edge : Edges)
         {
-            
-            outShadowPolygonPoints.push_back(edge.start);
+            olc::vd2d vOffset; // add a little offset to avoid to draw edges of geometry in shadow map
+            if (light.pos.x < 0) vOffset.x = 2.;
+            if (light.pos.x > 0) vOffset.x = -2.;
+            if (light.pos.y < 0) vOffset.y = 2.;
+            if (light.pos.y > 0) vOffset.y = -2.;
+
+            outShadowPolygonPoints.push_back(edge.start + vOffset);
             outShadowPolygonPoints.push_back(lineIntersection(edge.start));
             outShadowPolygonPoints.push_back(lineIntersection(edge.end));
-            outShadowPolygonPoints.push_back(edge.end);
+            outShadowPolygonPoints.push_back(edge.end + vOffset);
         }
     }
 }
@@ -545,7 +569,7 @@ void TAUDoom::Render2DMap(const olc::vi2d& vPos, const olc::vi2d& vResolution, b
     }
     DrawRect(vPos, vResolution);
 
-    for (int i = 0; i < mapWidth; i++)
+    /*for (int i = 0; i < mapWidth; i++)
     {
         DrawLine(olc::vi2d(vPos.x + i * mapScaleFactor.x, vPos.y), olc::vi2d(vPos.x + i * mapScaleFactor.x, vPos.y + vResolution.y));
     }
@@ -553,7 +577,7 @@ void TAUDoom::Render2DMap(const olc::vi2d& vPos, const olc::vi2d& vResolution, b
     for (int j = 0; j < mapWidth; j++)
     {
         DrawLine(olc::vi2d(vPos.x,  vPos.y + j *mapScaleFactor.y), olc::vi2d(vPos.x + vResolution.x, vPos.y + j *mapScaleFactor.y));
-    }
+    }*/
 
     //Player pos
     olc::vi2d vProjectedTranslation( player.vPosition.y * mapScaleFactor.y, player.vPosition.x * mapScaleFactor.x );
