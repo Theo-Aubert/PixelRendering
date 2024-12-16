@@ -13,7 +13,7 @@ constexpr double d3DDisplayRatio = 16. / 9.;
 constexpr double cellSize = 1.; // world unit size 
 
 constexpr int ShadowMapWidth = 4 *480;
-constexpr int ShadowMapHeight = 4*480;
+constexpr int ShadowMapHeight =4* 480;
 
 struct TAUPlayer
 {
