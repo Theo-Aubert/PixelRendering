@@ -21,6 +21,32 @@ bool TAUDoom::OnUserCreate()
     v2DMiniResolution = {480, 480};
     v2DMiniAnchor = v3DMainResolution - (v2DMiniResolution + olc::vi2d(1, 1));
 
+    //generate textures
+
+    olc::Sprite* wallsprite = new olc::Sprite(".../../Ressources/backroom_wall_64px.png");
+    
+    for(int i = 0; i < 8; i++) arrTextures[i].resize(vTexSize.x * vTexSize.y);
+
+    //generate some textures
+    for(int x = 0; x <vTexSize.x; x++)
+        for(int y = 0; y < vTexSize.y; y++)
+        {
+            int xorcolor = (x * 256 / vTexSize.x) ^ (y * 256 / vTexSize.y);
+            int andcolor = (x * 256 / vTexSize.x) & (y * 256 / vTexSize.y);
+            int orcolor = (x * 256 / vTexSize.x) | (y * 256 / vTexSize.y);
+            int xcolor = x * 256 / vTexSize.x;
+            int ycolor = y * 256 / vTexSize.y;
+            int xycolor = y * 128 / vTexSize.y + x * 128 / vTexSize.x;
+            arrTextures[0][vTexSize.x * y + x] = olc::Pixel(254 * (x != y && x != vTexSize.x - y), 0, 0); //flat red texture with black cross
+            arrTextures[1][vTexSize.x * y + x] = olc::Pixel(xycolor, xycolor,xycolor); //sloped greyscale
+            arrTextures[2][vTexSize.x * y + x] = olc::Pixel(xycolor,xycolor, 0); //sloped yellow gradient
+            arrTextures[3][vTexSize.x * y + x] = olc::Pixel(xorcolor, xorcolor,xorcolor); //xor greyscale
+            arrTextures[4][vTexSize.x * y + x] = olc::Pixel(0,xorcolor,0); //xor green
+            arrTextures[5][vTexSize.x * y + x] = wallsprite->GetPixel(x, y); //olc::Pixel(192 * (x % 16 && y % 16) + xorcolor, 0, 0); //red bricks
+            arrTextures[6][vTexSize.x * y + x] = olc::Pixel(ycolor); //red gradient
+            arrTextures[7][vTexSize.x * y + x] = olc::Pixel(128, 128, 128); //flat grey texture
+        }
+    
 	return true;
 }
 
@@ -124,7 +150,7 @@ void TAUDoom::ComputeShadowMap()
 {
     pShadowMap = new olc::Sprite(ShadowMapWidth, ShadowMapHeight);
     SetDrawTarget(pShadowMap);
-    Clear(olc::WHITE);
+    Clear(olc::BLACK);
     
     std::vector<sEdge> vEdges;
     std::vector<std::tuple<double, double, double>> vecVisibilityPolygonPoints;
@@ -140,46 +166,46 @@ void TAUDoom::ComputeShadowMap()
     // }
 
     //Directional Light
-    DirectionalLight light = { olc::vd2d(.5,.5), .5, olc::YELLOW};
-    CalculateDirectionalShadowPolygon(light, vEdges, vecShadowPolygonPoints);
-    for (int i = 0; i < vecShadowPolygonPoints.size(); i+=4)
-    {
-        //draw trapze
-        olc::vi2d delta = vecShadowPolygonPoints[i+3] - vecShadowPolygonPoints[i];
-
-        std::cout << delta << '\n';
-
-        if (abs(delta.y) > 0)
-            for (int y = 0; y < abs(delta.y-1); y++)
-            {
-                DrawLine(olc::vi2d(vecShadowPolygonPoints[i].x + (double(y) / delta.y) * delta.x, vecShadowPolygonPoints[i].y + y), olc::vi2d(vecShadowPolygonPoints[i+1].x + (double(y) / delta.y) * delta.x, vecShadowPolygonPoints[i+1].y + y), olc::BLACK);
-            }
-        else if(abs(delta.x) > 0)
-            for (int x = 0; x < abs(delta.x); x++)
-            {
-                DrawLine(olc::vi2d(vecShadowPolygonPoints[i].x + x, vecShadowPolygonPoints[i].y + (double(x) / delta.x) * delta.y), olc::vi2d(vecShadowPolygonPoints[i+1].x + x, vecShadowPolygonPoints[i+1].y + (double(x) / delta.x) * delta.y), olc::BLACK);
-            }
-
-        /*DrawLine(olc::vi2d(vecShadowPolygonPoints[i]), olc::vi2d(vecShadowPolygonPoints[i+1]));
-        DrawLine(olc::vi2d(vecShadowPolygonPoints [i+1]), olc::vi2d(vecShadowPolygonPoints[i+2]));
-        DrawLine(olc::vi2d(vecShadowPolygonPoints [i+2]), olc::vi2d(vecShadowPolygonPoints[i+3]));
-        DrawLine(olc::vi2d(vecShadowPolygonPoints [i+3]), olc::vi2d( vecShadowPolygonPoints[i]));*/
-    }
+    // DirectionalLight light = { olc::vd2d(.5,.5), .5, olc::YELLOW};
+    // CalculateDirectionalShadowPolygon(light, vEdges, vecShadowPolygonPoints);
+    // for (int i = 0; i < vecShadowPolygonPoints.size(); i+=4)
+    // {
+    //     //draw trapze
+    //     olc::vi2d delta = vecShadowPolygonPoints[i+3] - vecShadowPolygonPoints[i];
+    //
+    //     std::cout << delta << '\n';
+    //
+    //     if (abs(delta.y) > 0)
+    //         for (int y = 0; y < abs(delta.y-1); y++)
+    //         {
+    //             DrawLine(olc::vi2d(floor(vecShadowPolygonPoints[i].x + (double(y) / delta.y) * delta.x), vecShadowPolygonPoints[i].y + y), olc::vi2d(ceil(vecShadowPolygonPoints[i+1].x + (double(y) / delta.y) * delta.x), vecShadowPolygonPoints[i+1].y + y), olc::BLACK);
+    //         }
+    //     else if(abs(delta.x) > 0)
+    //         for (int x = 0; x < abs(delta.x); x++)
+    //         {
+    //             DrawLine(olc::vi2d(vecShadowPolygonPoints[i].x + x, floor(vecShadowPolygonPoints[i].y + (double(x) / delta.x) * delta.y)), olc::vi2d(vecShadowPolygonPoints[i+1].x + x, ceil(vecShadowPolygonPoints[i+1].y + (double(x) / delta.x) * delta.y)), olc::BLACK);
+    //         }
+    //
+    //     /*DrawLine(olc::vi2d(vecShadowPolygonPoints[i]), olc::vi2d(vecShadowPolygonPoints[i+1]));
+    //     DrawLine(olc::vi2d(vecShadowPolygonPoints [i+1]), olc::vi2d(vecShadowPolygonPoints[i+2]));
+    //     DrawLine(olc::vi2d(vecShadowPolygonPoints [i+2]), olc::vi2d(vecShadowPolygonPoints[i+3]));
+    //     DrawLine(olc::vi2d(vecShadowPolygonPoints [i+3]), olc::vi2d( vecShadowPolygonPoints[i]));*/
+    // }
 
     //Point Light
-    // CalculateVisibilityPolygon(lightPos, 1., vEdges, vecVisibilityPolygonPoints);
-    //
-    // for (int i = 0; i < vecVisibilityPolygonPoints.size() - 1; i++)
-    // {
-    //     FillTriangle(lightPos, 
-    //         olc::vi2d(get<1>(vecVisibilityPolygonPoints[i]), get<2>(vecVisibilityPolygonPoints[i])), 
-    //         olc::vi2d(get<1>(vecVisibilityPolygonPoints[i +1]), get<2>(vecVisibilityPolygonPoints[i +1])));
-    // }
-    //
-    // FillTriangle(lightPos, 
-    //     olc::vi2d(get<1>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1]), get<2>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1])), 
-    //     olc::vi2d(get<1>(vecVisibilityPolygonPoints[0]), get<2>(vecVisibilityPolygonPoints[0])));
-    //
+    CalculateVisibilityPolygon(lightPos, 1., vEdges, vecVisibilityPolygonPoints);
+    
+    for (int i = 0; i < vecVisibilityPolygonPoints.size() - 1; i++)
+    {
+        FillTriangle(lightPos, 
+            olc::vi2d(get<1>(vecVisibilityPolygonPoints[i]), get<2>(vecVisibilityPolygonPoints[i])), 
+            olc::vi2d(get<1>(vecVisibilityPolygonPoints[i +1]), get<2>(vecVisibilityPolygonPoints[i +1])));
+    }
+    
+    FillTriangle(lightPos, 
+        olc::vi2d(get<1>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1]), get<2>(vecVisibilityPolygonPoints[vecVisibilityPolygonPoints.size() - 1])), 
+        olc::vi2d(get<1>(vecVisibilityPolygonPoints[0]), get<2>(vecVisibilityPolygonPoints[0])));
+    
     // //FillCircle(lightPos, 5, olc::DARK_YELLOW);
     //
     //clear front faces to avoid shadow acne
@@ -836,30 +862,63 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
         default: color = olc::YELLOW; break; //yellow
         }
 
+        //texturing calculations
+        int texNum = worldMap[vMapPos.x][vMapPos.y] - 1; //1 subtracted from it so that texture 0 can be used!
+        
         //calculate value of wallX
         double wallX; //where exactly the wall was hit
         if(side == 0) wallX = player.vPosition.y + perpWallDist * vRayDir.y;
         else          wallX = player.vPosition.x + perpWallDist * vRayDir.x;
         wallX -= floor((wallX));
 
+        //x coordinate on the texture
+        int texX = int(wallX * double(vTexSize.x));
+        if(side == 0 && vRayDir.x > 0) texX = vTexSize.x - texX - 1;
+        if(side == 1 && vRayDir.y < 0) texX = vTexSize.x - texX - 1;
+
         olc::vd2d hitPoint { player.vPosition.x + perpWallDist * vRayDir.x, player.vPosition.y + perpWallDist * vRayDir.y};
         int tx = (int)(hitPoint.x * double(ShadowMapWidth) / mapWidth);
         int ty = (int)(hitPoint.y * double(ShadowMapHeight) / mapHeight);
 
-        if (side == 0) color /= 1.5; // i don't like brightness
-        if(pShadowMap->GetPixel(ty, tx ) == olc::BLACK
-            ||pShadowMap->GetPixel(ty +1, tx ) == olc::BLACK
-            ||pShadowMap->GetPixel(ty, tx+1 ) == olc::BLACK
-            ||pShadowMap->GetPixel(ty+1, tx+1 ) == olc::BLACK
-            ||pShadowMap->GetPixel(ty -1, tx ) == olc::BLACK
-            ||pShadowMap->GetPixel(ty, tx-1 ) == olc::BLACK
-            ||pShadowMap->GetPixel(ty-1, tx-1 ) == olc::BLACK)
-        {
-            color /=4;
-        }
+        // How much to increase the texture coordinate per screen pixel
+        double step = 1.0 * vTexSize.y / lineHeight;
+        // Starting texture coordinate
+        double texPos = 0.;// (drawStart - vResolution.y / 2 + lineHeight / 2) * step;
+        bool bInShadow = pShadowMap->GetPixel(ty, tx ) == olc::BLACK
+                        ||pShadowMap->GetPixel(ty +1, tx ) == olc::BLACK
+                        ||pShadowMap->GetPixel(ty, tx+1 ) == olc::BLACK
+                        ||pShadowMap->GetPixel(ty+1, tx+1 ) == olc::BLACK
+                        ||pShadowMap->GetPixel(ty -1, tx ) == olc::BLACK
+                        ||pShadowMap->GetPixel(ty, tx-1 ) == olc::BLACK
+                        ||pShadowMap->GetPixel(ty-1, tx-1 ) == olc::BLACK;
         
-        //draw the pixels of the stripe as a vertical line
-       DrawLine({ vPos.x + k, drawStart }, { vPos.x + k, drawEnd }, color);
+        for(int y = drawStart; y<=drawEnd; y++)
+        {
+            // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+            int texY = (int)texPos & (vTexSize.y - 1);
+            texPos += step;
+            olc::Pixel color = arrTextures[texNum][vTexSize.y * texY + texX];
+            //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+            if(side == 1) color /= 1.5;
+            if(bInShadow)
+                color /= 4;
+            Draw(vPos.x + k, y, color);
+        }
+
+       //  if (side == 0) color /= 1.5; // i don't like brightness
+       //  if(pShadowMap->GetPixel(ty, tx ) == olc::BLACK
+       //      ||pShadowMap->GetPixel(ty +1, tx ) == olc::BLACK
+       //      ||pShadowMap->GetPixel(ty, tx+1 ) == olc::BLACK
+       //      ||pShadowMap->GetPixel(ty+1, tx+1 ) == olc::BLACK
+       //      ||pShadowMap->GetPixel(ty -1, tx ) == olc::BLACK
+       //      ||pShadowMap->GetPixel(ty, tx-1 ) == olc::BLACK
+       //      ||pShadowMap->GetPixel(ty-1, tx-1 ) == olc::BLACK)
+       //  {
+       //      color /=4;
+       //  }
+       //  
+       //  //draw the pixels of the stripe as a vertical line
+       // DrawLine({ vPos.x + k, drawStart }, { vPos.x + k, drawEnd }, color);
 
         //FLOOR CASTING (vertical version, directly after drawing the vertical wall stripe for the current x)
         double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
@@ -894,7 +953,7 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
         if (drawEnd < 0) drawEnd = vResolution.y; //becomes < 0 when the integer overflows
 
         //draw the floor from drawEnd to the bottom of the screen
-        for(int y = drawEnd + 1; y < vResolution.y; y++)
+        for(int y = drawEnd +1 /*vResolution.y / 2. + 1*/; y < vResolution.y; y++)
         {
             currentDist = vResolution.y / (2.0 * y - vResolution.y); //you could make a small lookup table for this instead
 
@@ -907,13 +966,14 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
             int ty = (int)(currentFloorY * double(ShadowMapHeight) / mapHeight);
 
             //floor
+            olc::Pixel  tempColor = olc::VERY_DARK_GREY; //GetDrawTarget()->GetPixel(vPos.x + k,y);
             if(pShadowMap->GetPixel(ty, tx) == olc::BLACK)
             {
-                Draw(vPos.x + k,y -1, olc::VERY_DARK_GREY /4 );
-                Draw(vPos.x + k,y, olc::VERY_DARK_GREY /4 );
+                Draw(vPos.x + k,y -1, tempColor /4 );
+                Draw(vPos.x + k,y, tempColor /4 );
             }
             else
-                Draw(vPos.x + k,y, olc::VERY_DARK_GREY);
+                Draw(vPos.x + k,y, tempColor);
             
             //ceil
             Draw(vPos.x + k,vResolution.y - y - 1, olc::VERY_DARK_BLUE);
