@@ -24,6 +24,7 @@ bool TAUDoom::OnUserCreate()
     //generate textures
 
     olc::Sprite* wallsprite = new olc::Sprite(".../../Ressources/backroom_wall_64px.png");
+    pFloorTex = new olc::Sprite(".../../Ressources/backroom_floor_64px.png");
     
     for(int i = 0; i < 8; i++) arrTextures[i].resize(vTexSize.x * vTexSize.y);
 
@@ -44,7 +45,7 @@ bool TAUDoom::OnUserCreate()
             arrTextures[4][vTexSize.x * y + x] = olc::Pixel(0,xorcolor,0); //xor green
             arrTextures[5][vTexSize.x * y + x] = wallsprite->GetPixel(x, y); //olc::Pixel(192 * (x % 16 && y % 16) + xorcolor, 0, 0); //red bricks
             arrTextures[6][vTexSize.x * y + x] = olc::Pixel(ycolor); //red gradient
-            arrTextures[7][vTexSize.x * y + x] = olc::Pixel(128, 128, 128); //flat grey texture
+            arrTextures[7][vTexSize.x * y + x] = olc::Pixel(192 * (x % 8 || y % 8), 192 * (x % 8 || y % 8), 109); //olc::Pixel((( int(x) + y % 4) % 8) * 64, ((int(x) + y % 4) % 8) * 64, 0); //flat grey texture
         }
     
 	return true;
@@ -961,18 +962,21 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
 
             double currentFloorX = weight * floorXWall + (1.0 - weight) * player.vPosition.x;
             double currentFloorY = weight * floorYWall + (1.0 - weight) * player.vPosition.y;
+
+            int tx = int(currentFloorX * pFloorTex->Size().x) % pFloorTex->Size().x;
+            int ty = int(currentFloorY * pFloorTex->Size().y) % pFloorTex->Size().y;
             
-            int tx = (int)(currentFloorX * double(ShadowMapWidth) / mapWidth);
-            int ty = (int)(currentFloorY * double(ShadowMapHeight) / mapHeight);
+            int sx = (int)(currentFloorX * double(ShadowMapWidth) / mapWidth);
+            int sy = (int)(currentFloorY * double(ShadowMapHeight) / mapHeight);
 
             //floor
-            olc::Pixel  tempColor = olc::VERY_DARK_GREY; //GetDrawTarget()->GetPixel(vPos.x + k,y);
-            if(pShadowMap->GetPixel(ty, tx) == olc::BLACK)
-            {
-                Draw(vPos.x + k,y -1, tempColor /4 );
-                Draw(vPos.x + k,y, tempColor /4 );
-            }
-            else
+            olc::Pixel  tempColor = arrTextures[7][ty * vTexSize.x + tx]; //GetDrawTarget()->GetPixel(vPos.x + k,y);
+            // if(pShadowMap->GetPixel(sy, sx) == olc::BLACK)
+            // {
+            //     //Draw(vPos.x + k,y -1, tempColor /4 );
+            //     Draw(vPos.x + k,y, tempColor /4 );
+            // }
+            // else
                 Draw(vPos.x + k,y, tempColor);
             
             //ceil

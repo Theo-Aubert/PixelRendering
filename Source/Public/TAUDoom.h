@@ -108,6 +108,7 @@ private:
 	//Sprites 
 	olc::Sprite* pMiniMapSprite = nullptr;
 	olc::Sprite* pShadowMap = nullptr;
+	olc::Sprite* pFloorTex = nullptr;
 
 	//Decals
 	olc::Decal* pMiniMapDecal = nullptr;
