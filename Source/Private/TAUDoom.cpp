@@ -37,7 +37,9 @@ bool TAUDoom::OnUserCreate()
             int orcolor = (x * 256 / vTexSize.x) | (y * 256 / vTexSize.y);
             int xcolor = x * 256 / vTexSize.x;
             int ycolor = y * 256 / vTexSize.y;
-            int xycolor = y * 128 / vTexSize.y + x * 128 / vTexSize.x;
+            int xycolor = (y % 8) * 512/ vTexSize.y + (x %8) * 512/ vTexSize.x;
+            int invxycolor = 256 - xycolor;
+            
             arrTextures[0][vTexSize.x * y + x] = olc::Pixel(254 * (x != y && x != vTexSize.x - y), 0, 0); //flat red texture with black cross
             arrTextures[1][vTexSize.x * y + x] = olc::Pixel(xycolor, xycolor,xycolor); //sloped greyscale
             arrTextures[2][vTexSize.x * y + x] = olc::Pixel(xycolor,xycolor, 0); //sloped yellow gradient
@@ -45,7 +47,7 @@ bool TAUDoom::OnUserCreate()
             arrTextures[4][vTexSize.x * y + x] = olc::Pixel(0,xorcolor,0); //xor green
             arrTextures[5][vTexSize.x * y + x] = wallsprite->GetPixel(x, y); //olc::Pixel(192 * (x % 16 && y % 16) + xorcolor, 0, 0); //red bricks
             arrTextures[6][vTexSize.x * y + x] = olc::Pixel(ycolor); //red gradient
-            arrTextures[7][vTexSize.x * y + x] = olc::Pixel(192 * (x % 8 || y % 8), 192 * (x % 8 || y % 8), 109); //olc::Pixel((( int(x) + y % 4) % 8) * 64, ((int(x) + y % 4) % 8) * 64, 0); //flat grey texture
+            arrTextures[7][vTexSize.x * y + x] = olc::Pixel(xycolor, xycolor , 0);//wallsprite->GetPixel(x, y);//olc::Pixel(192 * (x % 8 || y % 8), 192 * (x % 8 || y % 8), 109); //olc::Pixel((( int(x) + y % 4) % 8) * 64, ((int(x) + y % 4) % 8) * 64, 0); //flat grey texture
         }
     
 	return true;
@@ -980,7 +982,7 @@ void TAUDoom::RenderDoomMap(const olc::vi2d& vPos, const olc::vi2d& vResolution)
                 Draw(vPos.x + k,y, tempColor);
             
             //ceil
-            Draw(vPos.x + k,vResolution.y - y - 1, olc::VERY_DARK_BLUE);
+            Draw(vPos.x + k,vResolution.y - y - 1, tempColor);
         }
        
         
