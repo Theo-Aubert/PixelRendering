@@ -9,7 +9,10 @@
 #include "Public/WaveFC.h"
 #include "Public/ProceduralAnim.h"
 #include "Public/YamScoreBoard.h"
+#include "Public/RayTracer.h"
 #include <cmath>
+
+#include "Public/RayTracer.h"
 
 // Override base class with your custom functionality
 class Example : public olc::PixelGameEngine
@@ -658,7 +661,7 @@ int main(int argc, char* argv[])
 {
 	srand(time(NULL));
 
-	TAUDoom demo;
+	RayTracer demo;
 	//ImageProcessor demo;
 	//WaveFC demo;
 	////SandSimulation demo;
