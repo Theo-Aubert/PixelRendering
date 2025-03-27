@@ -10,43 +10,55 @@ bool PixelGallery::OnUserUpdate(float fElapsedTime)
     //Quit app
     if (GetKey(olc::ESCAPE).bReleased) return false;
 
-    if(GetKey(olc::LEFT).bReleased)
-    {
-        AppManager::SignalNextApp("DummyA");
-        return false;
-    }
-    if(GetKey(olc::RIGHT).bReleased)
-    {
-        AppManager::SignalNextApp("DummyB");
-        return false;
-    }
+    olc::vi2d mousePos = GetMousePos();
     
     Clear(olc::BLACK);
 
     int idx = 0;
+
+   size_t iNUmApps = AppManager::GetRegisteredApps().size();
+
+    int iNumCols = ScreenWidth() / 200;
+    int iNumRows = ScreenHeight() / 100;
+
+    int mouseX = mousePos.x / 200;
+    int mouseY = mousePos.y / 100;
+
+    int xidx = 0;
+    int yidx = 0;
+
+    std::string sSelectedApp;
     
     for(auto const& app : AppManager::GetRegisteredApps())
     {
-        DrawRect(olc::vi2d(25,25 + idx * 90), olc::vi2d(150, 75));
-        DrawString(olc::vi2d(45,60 + idx * 90), app);
-        idx ++;
+        if(app == DefaultAppName)
+            continue;
+        
+        if(xidx == mouseX && yidx == mouseY)
+        {
+            FillRect(xidx * 200 + 25, yidx * 100 + 15, 150, 70);
+            DrawString(xidx * 200 +35,yidx * 100 + 45, app, olc::BLACK);
+
+            if(GetMouse(0).bReleased) sSelectedApp = app;
+        }
+        else
+        {
+            DrawRect(xidx * 200 + 25, yidx * 100 + 15, 150, 70);
+            DrawString(xidx * 200 +35,yidx * 100 + 45, app);
+        }
+
+        yidx = ++yidx % iNumRows;
+        if(yidx == 0)
+            xidx++;
+           
     }
 
-    return true;
-}
+    if(!sSelectedApp.empty())
+    {
+        AppManager::SignalNextApp(sSelectedApp);
+        return false;
+    }
+        
 
-bool DummyA::OnUserUpdate(float fElapsedTime)
-{
-    if (GetKey(olc::ESCAPE).bReleased) return false;
-    
-    DrawRect(75,75, 150, 150, olc::GREEN);
-    return true;
-}
-
-bool DummyB::OnUserUpdate(float fElapsedTime)
-{
-    if (GetKey(olc::ESCAPE).bReleased) return false;
-    
-    DrawRect(75,75, 150, 150, olc::RED);
     return true;
 }

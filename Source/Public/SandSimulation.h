@@ -1,6 +1,4 @@
 #pragma once
-
-#include "PixelApp.h"
 #include "AppManager.h"
 
 enum ParticleType : uint32_t

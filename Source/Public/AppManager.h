@@ -11,7 +11,6 @@ public:
     
     using CreatorFunc = std::unique_ptr<PixelApp>(*)();
     
-    static void Init();
     static bool Run();
 
     static void RegisterApp(const std::string& sAppName, CreatorFunc creator)

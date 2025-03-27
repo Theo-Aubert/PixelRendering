@@ -7,11 +7,6 @@ std::string AppManager::sNextApp = DefaultAppName;
 std::string AppManager::sCurrentApp = "" ;
 bool AppManager::bIsRunning = true;
 
-void AppManager::Init()
-{
-    LaunchApp(DefaultAppName);
-}
-
 bool AppManager::Run()
 {
     while(bIsRunning && !sNextApp.empty() && sNextApp != sCurrentApp)
