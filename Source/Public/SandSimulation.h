@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 
 enum ParticleType : uint32_t
 {
@@ -20,7 +21,7 @@ struct Particle
 };
 
 // Override base class with your custom functionality
-class SandSimulation : public olc::PixelGameEngine
+class SandSimulation : public PixelApp
 {
 public:
 	SandSimulation()
@@ -58,4 +59,5 @@ private :
 
 	uint8_t brushSize = 5;
 };
+REGISTER_CLASS(SandSimulation)
 

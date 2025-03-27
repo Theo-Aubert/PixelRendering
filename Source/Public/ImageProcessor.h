@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 
 //App Viewports dimensions
@@ -25,7 +26,7 @@ struct Box
 	bool IsInside(const olc::vd2d& point) const;
 };
 // Override base class with your custom functionality
-class ImageProcessor : public olc::PixelGameEngine
+class ImageProcessor : public PixelApp
 {
 public:
 	ImageProcessor()
@@ -124,3 +125,4 @@ private:
 	Kernel kernel;
 
 };
+REGISTER_CLASS(ImageProcessor)

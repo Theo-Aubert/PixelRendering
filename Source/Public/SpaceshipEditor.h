@@ -1,16 +1,15 @@
 #pragma once
-
 #include "PixelApp.h"
 #include "AppManager.h"
 #include "Constants.h"
 
-class RayTracer : public PixelApp
+class SpaceshipEditor :  public PixelApp
 {
 public:
-    RayTracer()
+    SpaceshipEditor()
     {
         // Name your application
-        sAppName = "RayTracer";
+        sAppName = "SpaceshipEditor";
     }
 
 public:
@@ -19,11 +18,7 @@ public:
     bool OnUserUpdate(float fElapsedTime) override;
 
 private:
-
-    olc::Sprite* pDrawTarget = nullptr;
-
-    int iCurrentRow = 0;
-    int iRowNum = 0;
+    
     
 };
-REGISTER_CLASS(RayTracer)
+REGISTER_CLASS(SpaceshipEditor)

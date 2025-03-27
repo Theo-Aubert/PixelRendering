@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\AgeDev\\GitRepos\\PixelRendering\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\AgeDev\\GitRepos\\PixelRendering\\Source\\Private\\TAUDoom.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\TAUDoom.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\AgeDev\\GitRepos\\PixelRendering\\Source\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\AgeDev\\GitRepos\\PixelRendering\\Source\\Private\\TAUDoom.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|solutionrelative:Source\\Private\\TAUDoom.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{177717B6-65AC-449F-9D37-B10FB15B558C}|PixelRendering.vcxproj|C:\\AgeDev\\GitRepos\\PixelRendering\\Source\\Public\\TAUDoom.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -77,7 +77,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 14,
           "Children": [
             {
               "$type": "Document",
@@ -107,13 +107,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "TAUDoom.cpp",
               "DocumentMoniker": "C:\\AgeDev\\GitRepos\\PixelRendering\\Source\\Private\\TAUDoom.cpp",
               "RelativeDocumentMoniker": "Source\\Private\\TAUDoom.cpp",
               "ToolTip": "C:\\AgeDev\\GitRepos\\PixelRendering\\Source\\Private\\TAUDoom.cpp",
               "RelativeToolTip": "Source\\Private\\TAUDoom.cpp",
-              "ViewState": "AgIAACwDAAAAAAAAAAAcwKEDAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-12-12T12:19:39.333Z",
               "EditorCaption": ""
@@ -252,7 +252,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\AgeDev\\GitRepos\\PixelRendering\\Source\\main.cpp",
               "RelativeDocumentMoniker": "Source\\main.cpp",

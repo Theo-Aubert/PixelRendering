@@ -47,8 +47,9 @@ bool RayTracer::OnUserUpdate(float fElapsedTime)
         std::ostringstream stream;
         stream << "Row : " << iCurrentRow <<" / "<<iRowNum;
         std::cout << stream.str() <<'\n';
+        DrawString(olc::vi2d(35,25), stream.str(),olc::WHITE, 4);
         DrawString(olc::vi2d(35,35), stream.str(),olc::BLACK, 3);
-        DrawString(olc::vi2d(35,35), stream.str(),olc::WHITE, 4);
+        
 
         iCurrentRow ++;
     }

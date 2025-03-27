@@ -1,4 +1,5 @@
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 #include <deque>
 
@@ -59,7 +60,7 @@ private:
 
 
 };
-class ProceduralAnim : public olc::PixelGameEngine
+class ProceduralAnim : public PixelApp
 {
 
 public:
@@ -87,3 +88,4 @@ private:
 	float fSpeed = 150.f;
 	bool bHasReceivedCommand = false;
 };
+REGISTER_CLASS(ProceduralAnim)

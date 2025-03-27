@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 #include <set>
 
@@ -70,7 +71,7 @@ enum CardinalPoints
 	NWest
 };
 
-class TAUDoom : public olc::PixelGameEngine
+class TAUDoom : public PixelApp
 {
 public:
 	TAUDoom()
@@ -174,4 +175,5 @@ private:
 	olc::vi2d vTexSize = olc::vi2d(64,64);
 	std::vector<olc::Pixel> arrTextures[8];
 };
+REGISTER_CLASS(TAUDoom)
 

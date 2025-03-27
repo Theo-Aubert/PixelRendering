@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 #include <map>
 #include <set>
@@ -105,7 +106,7 @@ static const olc::vf2d vFrameSizePercentage(.30f, .5f);
 #define LiteralSize 2
 
 // Override base class with your custom functionality
-class YamScoreBoard : public olc::PixelGameEngine
+class YamScoreBoard : public PixelApp
 {
 	
 
@@ -313,3 +314,4 @@ private:
 	olc::Sprite* m_pCrownSprite = nullptr;
 	olc::Decal* m_pCrownDecal = nullptr;
 };
+REGISTER_CLASS(YamScoreBoard)

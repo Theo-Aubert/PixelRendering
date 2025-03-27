@@ -10,6 +10,7 @@
 #include "Public/ProceduralAnim.h"
 #include "Public/YamScoreBoard.h"
 #include "Public/RayTracer.h"
+#include "Public/PixelGallery.h"
 #include <cmath>
 
 #include "Public/RayTracer.h"
@@ -661,17 +662,20 @@ int main(int argc, char* argv[])
 {
 	srand(time(NULL));
 
-	RayTracer demo;
+	//TAUDoom demo;
 	//ImageProcessor demo;
 	//WaveFC demo;
-	////SandSimulation demo;
+	//SandSimulation demo;
 	//ProceduralAnim demo;
 	//YamScoreBoard demo;
-	if (demo.Construct(1920, 1080, 1, 1, false))
-	{
-		demo.Start();
+	//PixelGallery demo;
+	//if (demo.Construct(1920, 1080, 1, 1, false))
+	//{
+		//demo.Start();
 		//demo.olc_UpdateMouseFocus(true);
 		//demo.olc_UpdateKeyFocus(true);
-	}
+	//}
+
+	AppManager::Run();
 	return 0;
 }
