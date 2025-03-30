@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 
-class DreamCatcher :public olc::PixelGameEngine
+class DreamCatcher :public PixelApp
 {
 public:
 
@@ -82,4 +83,5 @@ public:
 
 	std::shared_ptr<Trinket> pRoot;
 };
+REGISTER_CLASS(DreamCatcher)
 

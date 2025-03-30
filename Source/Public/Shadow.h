@@ -1,9 +1,10 @@
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 
 #pragma once
 
-class Shadow : public olc::PixelGameEngine
+class Shadow : public PixelApp
 {
 public:
 
@@ -48,4 +49,5 @@ private:
 	std::vector<Mirror> mirrors;
 	uint8_t numBounces = 12;
 };
+REGISTER_CLASS(Shadow)
 

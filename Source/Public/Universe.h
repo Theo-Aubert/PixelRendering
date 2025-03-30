@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 
 //UI Absolute defines
@@ -122,7 +123,7 @@ enum class GalaxyStarVisualization : uint8_t
 };
 
 // Override base class with your custom functionality
-class Universe : public olc::PixelGameEngine
+class Universe : public PixelApp
 {
 public:
 	Universe()
@@ -208,6 +209,7 @@ private :
 	//bool bHasSolarSystemPanelBeenDraw = false;
 
 };
+REGISTER_CLASS(Universe)
 
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include "Constants.h"
 
 #include <memory>
@@ -571,3 +572,4 @@ private:
     RTDirectionalLight light = RTDirectionalLight(glm::vec3(-1,-1,-1));
     Camera camera;
 };
+REGISTER_CLASS(RayTracer)

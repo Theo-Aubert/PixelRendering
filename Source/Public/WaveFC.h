@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "../Externals/olcPixelGameEngine.h"
+#include "PixelApp.h"
+#include "AppManager.h"
 #include <set>
 #include <random>
 #include <algorithm>
@@ -60,7 +61,7 @@ static SimpleTile CRightDown;
 //}
 
 
-class WaveFC : public olc::PixelGameEngine
+class WaveFC : public PixelApp
 {
 
 public:
@@ -117,6 +118,7 @@ private:
 
 
 };
+REGISTER_CLASS(WaveFC)
 
 
 template<typename S>
